@@ -24,8 +24,8 @@ raven/native/_raven_native*.so
 # ── Never commit engagement data or secrets ─────────────────────────────────
 # (RAVEN keeps its data in ~/.local/share/raven-recon or %LOCALAPPDATA%\RAVEN-Recon;
 #  these patterns catch data written next to the code by a source run.)
-claude/
-claude-agent/
+/claude/
+/claude-agent/
 *.enc
 secret.key
 *.key
