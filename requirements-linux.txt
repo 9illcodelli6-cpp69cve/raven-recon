@@ -1,0 +1,17 @@
+# RAVEN Recon — runtime dependencies on Kali / Debian / Ubuntu.
+# Installed by ./install.sh into a venv created with --system-site-packages, because the
+# native window uses the distro's PyGObject + WebKit2GTK (apt: python3-gi gir1.2-webkit2-4.1).
+# The local server and recon engine themselves need only the Python standard library.
+
+pywebview>=5.0            # native desktop window (GTK/WebKit backend)
+textual==8.2.8            # terminal UI (`raven` command)
+aiohttp==3.14.3
+numpy                     # ML triage features
+scikit-learn
+joblib
+idna>=3.4                 # IDNA2008/UTS-46 hostnames in scope rules
+anthropic>=2.10           # Claude (Anthropic API) — used only after you save a key
+cryptography>=42          # encrypts the API key at rest
+
+# Optional: local AI models (RAVEN-Sec, native model) → requirements-ai.txt
+# Build / tests → requirements-dev.txt

@@ -1,0 +1,45 @@
+{
+  "manifest_kind": "RAVEN build provenance",
+  "generated": "2026-09-29",
+  "generated_by": "independent verification session (Claude); values below are labelled verified vs inferred",
+  "executable": {
+    "path": "dist/RAVEN.exe",
+    "sha256": "3dccf7d5fc4a96935763093deb5beddafb37684bdf7608c887f6aac01ed502f6",
+    "sha256_source": "verified: rebuilt from the current source and hashed in this session",
+    "size_bytes": 15000168,
+    "file_mtime": "2026-09-29T16:51:48+03:00",
+    "build_time_note": "REBUILT in this session with PyInstaller 6.22.3 from the current working tree, so the binary includes the framing-robustness fix. Smoke-tested this session (server surface): startup, token auth (403 without token), bad-Host rejection, token inlined into the page, /api/scope + /api/summary served, data path resolved next to the exe. The native GUI window's graceful close was NOT exercised.",
+    "previous_binary_sha256": "72b5c8b49e01cebb1082beb303b65d5ba7b1d13625bbc0b3a1a6f93282763e60 (15974296 bytes, 2026-09-29T16:15, superseded — predated the framing fix)"
+  },
+  "source_state": {
+    "git_head": "92c1bc0388f8519041fee64d5857abf28caad2c6",
+    "git_head_subject": "Implement the isolated XSS execution verifier (Stage 4), self-test gated",
+    "working_tree": "DIRTY at build time",
+    "uncommitted_in_build": {
+      "note": "the rebuilt binary reflects HEAD 92c1bc0 PLUS the uncommitted defensive-audit changes AND this session's framing-robustness fix (server.py routes return a framed 500/409 on store/scheduler errors instead of dropping the socket; +3 regression tests in tests/test_api_security.py). None of this is committed yet.",
+      "new_untracked": ["docs/DEFENSIVE_AUDIT_2026-09-29.md", "tests/test_defensive_regressions.py", "tests/test_frontend_rendering.cjs", "tools/run_local_tests.py", "RAVEN-build-manifest.json", "RAVEN-audit-results.json"]
+    }
+  },
+  "build_tool": {
+    "packager": "PyInstaller (onefile, windowed / console=false) per RAVEN.spec",
+    "entry_point": "launch.py",
+    "bundles": ["web/", "raven.ico", "pywebview (webview)", "pythonnet / clr_loader"],
+    "excludes": ["tkinter", "PIL"],
+    "upx": true,
+    "reproducibility_note": "PyInstaller onefile builds are not bit-reproducible; a rebuild would yield a different SHA-256. The hash above pins the ONE delivered binary, not a reproducible build."
+  },
+  "dependencies": {
+    "runtime_server": "Python standard library only (raven.api HTTP server)",
+    "runtime_cli_tui_declared": {"aiohttp": "==3.14.3", "textual": "==8.2.8"},
+    "build_declared": {"pyinstaller": ">=6.0", "pywebview": ">=5.0", "pythonnet": ">=3.0", "pillow": ">=10.0 (icon regen only)"},
+    "verified_this_session": {"python": "3.13.14", "aiohttp": "3.14.3", "textual": "8.2.8"},
+    "unverified_this_session": "exact pyinstaller/pywebview/pythonnet versions frozen INTO the delivered binary were set in the prior build environment and were not captured here"
+  },
+  "limitations": [
+    "Build reproduced this session; PyInstaller onefile is not bit-reproducible, so the hash pins THIS binary, not a repeatable build.",
+    "The exe smoke covered the server surface only (via a bounded subprocess launch that was then terminated); the native GUI window's graceful close was NOT exercised.",
+    "Clean-Windows qualification (missing WebView runtime, read-only folder, non-ASCII paths, restart/recovery) is PENDING and not satisfied by a development-machine smoke test.",
+    "Code signing and distribution readiness are not established.",
+    "dist/workspaces/ holds real recon data from prior smokes; clear it before distributing the binary bundle."
+  ]
+}

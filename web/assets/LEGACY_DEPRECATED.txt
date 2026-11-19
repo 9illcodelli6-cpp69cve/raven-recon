@@ -1,0 +1,15 @@
+LEGACY / DEPRECATED — orphan asset marker (A14-FRONTEND, Wave 14)
+=================================================================
+
+raven-v7-hero.jpg in this directory is an ORPHAN / DEAD asset.
+
+The live UI (web/index.html) inlines its hero image as a base64 data: URI and
+does NOT reference this file. No served page, and neither prototype UI, links to
+it. It is kept on disk only for historical reference.
+
+Classified DEPRECATE (orphan) in:
+  - reconstruction/FRONTEND_API_CONTRACTS.md §A.6 / §B
+  - reconstruction/CANONICAL_ARCHITECTURE.md
+
+Do not wire this asset back into any page. If a future wave confirms it is truly
+unused, it may be removed (on disk only, with a backup) by a later cleanup wave.

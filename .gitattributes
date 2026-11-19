@@ -1,0 +1,24 @@
+# Normalise line endings: LF in the repo, native on checkout. Stops the
+# "LF will be replaced by CRLF" warnings on Windows.
+* text=auto
+
+# Treat these as binary (never touch their bytes / never diff them).
+*.png  binary
+*.jpg  binary
+*.webp binary
+*.ico  binary
+*.pdf  binary
+*.exe  binary
+*.db   binary
+
+# Language hints for GitHub's linguist (keeps stats/highlighting sane).
+*.html linguist-language=HTML
+
+# Windows scripts must keep CRLF (cmd.exe misreads labels/goto with LF), even in
+# GitHub's "Download ZIP"; Linux scripts must keep LF.
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+*.ps1  text eol=crlf
+*.sh   text eol=lf
+raven-app text eol=lf
+raven-sec text eol=lf

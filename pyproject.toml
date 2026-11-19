@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "raven-recon"
+version = "7.0.0"
+description = "RAVEN Recon — scope-aware reconnaissance and AI-assisted security-testing workbench"
+requires-python = ">=3.11"
+license = "AGPL-3.0-or-later"
+authors = [{ name = "mahmoud" }]
+dependencies = ["textual==8.2.8", "aiohttp==3.14.3"]
+
+[project.optional-dependencies]
+test = ["pytest>=8,<10", "pytest-asyncio>=0.24,<2"]
+
+[project.scripts]
+raven = "raven.cli:main"
+
+[tool.setuptools.package-data]
+raven = ["*.tcss"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]

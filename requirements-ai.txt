@@ -1,0 +1,10 @@
+# Optional — local AI (RAVEN-Sec 0.5B model, native model, LoRA fine-tuning). CPU only.
+# Install PyTorch first from the CPU index (≈700 MB instead of several GB):
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+# then:
+#   pip install -r requirements-ai.txt
+transformers>=4.45
+peft>=0.13
+accelerate>=1.0
+safetensors
+huggingface_hub

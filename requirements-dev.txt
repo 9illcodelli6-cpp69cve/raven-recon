@@ -1,0 +1,5 @@
+# Development: tests and building the standalone app.
+pytest>=8,<10
+pytest-asyncio>=0.24,<2
+pyinstaller>=6.0
+pybind11                  # optional C++ accelerator (needs python3-dev / MSVC)

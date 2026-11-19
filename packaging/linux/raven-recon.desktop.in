@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=RAVEN Recon
+GenericName=Recon Workbench
+Comment=Scope-aware attack-surface and bug-bounty workbench (authorized testing only)
+Exec=@EXEC@
+Icon=raven-recon
+Terminal=false
+Categories=System;Security;
+Keywords=recon;bugbounty;security;pentest;scope;
+StartupNotify=true
+StartupWMClass=@WMCLASS@

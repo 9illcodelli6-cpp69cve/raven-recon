@@ -1,0 +1,19 @@
+[package]
+name        = "raven-bridge"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+description = "JSON-over-stdin/stdout policy bridge for Python→Rust integration"
+
+[[bin]]
+name = "raven-bridge"
+path = "src/main.rs"
+
+[dependencies]
+raven-core   = { path = "../raven-core" }
+raven-policy = { path = "../raven-policy" }
+raven-ipc    = { path = "../raven-ipc" }
+serde        = { workspace = true }
+serde_json   = { workspace = true }
+uuid         = { workspace = true }
+log          = { workspace = true }

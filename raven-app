@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# RAVEN Recon — Linux launcher (runs the app from this source tree).
+#
+#   ./raven-app              native window (GTK/WebKit), browser fallback
+#   ./raven-app --browser    always use the default browser
+#   ./raven-app --help       all options
+#
+# Data lives in ~/.local/share/raven-recon (override with RAVEN_DATA_DIR), the same
+# folder the packaged dist/RAVEN binary uses, so both share workspaces and settings.
+set -euo pipefail
+
+# Resolve the real project dir even when started through a symlink (~/.local/bin).
+SELF="$(readlink -f -- "${BASH_SOURCE[0]}")"
+HERE="$(dirname -- "$SELF")"
+
+export RAVEN_DATA_DIR="${RAVEN_DATA_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/raven-recon}"
+mkdir -p -- "$RAVEN_DATA_DIR"
+
+if [[ -x "$HERE/.venv/bin/python" ]]; then
+    PY="$HERE/.venv/bin/python"
+else
+    PY="$(command -v python3)"
+fi
+
+cd -- "$HERE"
+exec "$PY" "$HERE/launch.py" "$@"

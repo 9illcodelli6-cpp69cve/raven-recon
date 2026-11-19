@@ -1,0 +1,7 @@
+example.com
+api.example.com
+admin.staging.example.com
+outside.example.net
+https://api.example.com/v1/users/123?expand=team
+https://api.example.com/v1/users/456?expand=team
+

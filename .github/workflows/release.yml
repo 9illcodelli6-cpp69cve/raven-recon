@@ -1,0 +1,81 @@
+# Builds the standalone apps when a version tag (v*) is pushed, attaches them to a GitHub
+# Release with SHA-256 checksums, and signs each file with a build-provenance attestation
+# (verify with: gh attestation verify <file> --repo <owner>/<repo>).
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write        # create the release
+  id-token: write        # build-provenance attestations
+  attestations: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            asset: RAVEN-Recon-windows-x64.zip
+          - os: ubuntu-24.04
+            asset: RAVEN-Recon-linux-x64.tar.gz
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-venv python3-dev python3-gi gir1.2-webkit2-4.1 cmake
+          python3 -m venv --system-site-packages .venv
+          .venv/bin/python -m pip install --upgrade pip
+          .venv/bin/python -m pip install -r requirements-linux.txt -r requirements-dev.txt
+          ./build-linux.sh
+          tar -C dist -czf "${{ matrix.asset }}" RAVEN
+
+      - uses: actions/setup-python@v5
+        if: runner.os == 'Windows'
+        with:
+          python-version: "3.12"
+
+      - name: Build (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-windows.txt -r requirements-dev.txt
+          cargo build --release -p raven-bridge --manifest-path rust/Cargo.toml
+          python -m PyInstaller RAVEN.spec --noconfirm --clean
+          Compress-Archive -Path dist/RAVEN.exe, LICENSE, NOTICE.md, RESPONSIBLE_USE.md -DestinationPath "${{ matrix.asset }}"
+
+      - uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: ${{ matrix.asset }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset }}
+          path: ${{ matrix.asset }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: assets
+          merge-multiple: true
+      - name: Checksums
+        run: cd assets && sha256sum * > SHA256SUMS.txt && cat SHA256SUMS.txt
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github
+          path: src
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: assets/*
+          body_path: src/.github/RELEASE_NOTES.md

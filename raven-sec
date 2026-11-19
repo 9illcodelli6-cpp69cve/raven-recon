@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# RAVEN-Sec in the terminal (chat / one question / research agent). See raven/sec_ai/cli.py.
+HERE="$(cd -- "$(dirname -- "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
+export RAVEN_AI_DIR="${RAVEN_AI_DIR:-${RAVEN_DATA_DIR:-$HOME/.local/share/raven-recon}/ai}"
+export PYTHONPATH="$HERE${PYTHONPATH:+:$PYTHONPATH}"
+export PYTHONWARNINGS="${PYTHONWARNINGS:-ignore}"
+exec "$HERE/.venv/bin/python" -m raven.sec_ai.cli "$@"

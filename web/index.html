@@ -1,0 +1,2888 @@
+﻿<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>RAVEN — AI Security Research OS v7.0.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+/*───────────────────────────────────────────
+  DESIGN TOKENS — matching IMAGE 1
+───────────────────────────────────────────*/
+:root {
+  --bg:      #050510;
+  --bg2:     #07071a;
+  --bg3:     #0b0b22;
+  --surface: #10102a;
+  --border:  #1a1a40;
+  --border2: #222250;
+
+  --red:    #e8340a;
+  --red2:   #bf2b08;
+  --orange: #ff6b35;
+  --amber:  #f59e0b;
+  --green:  #22c55e;
+  --blue:   #3b82f6;
+  --cyan:   #06b6d4;
+
+  --txt:  #f0f0ff;
+  --txt2: #8080b8;
+  --txt3: #404070;
+
+  --sb-w:     210px;
+  --rp-w:     285px;
+  --tb-h:     50px;
+  --sb-h:     28px;
+
+  --f-ui:    'Inter', system-ui, sans-serif;
+  --f-head:  'Space Grotesk', var(--f-ui);
+  --f-cyber: 'Orbitron', var(--f-head);
+  --f-mono:  'JetBrains Mono', ui-monospace, monospace;
+  --ease:    cubic-bezier(.16,1,.3,1);
+}
+
+*  { box-sizing:border-box; margin:0; padding:0 }
+html,body { height:100%; overflow:hidden }
+body {
+  font-family: var(--f-ui);
+  background: var(--bg);
+  color: var(--txt);
+  font-size: 13px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+button { border:none; cursor:pointer; font-family:var(--f-ui) }
+input  { border:none; outline:none; font-family:var(--f-ui); background:transparent; color:var(--txt) }
+svg    { display:block; flex-shrink:0 }
+
+/*───────────────────────────────────────────
+  SHELL
+───────────────────────────────────────────*/
+.shell {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/*───────────────────────────────────────────
+  TOP BAR
+───────────────────────────────────────────*/
+.topbar {
+  height: var(--tb-h);
+  flex-shrink: 0;
+  display: flex;
+  align-items: stretch;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  user-select: none;
+}
+.topbar-brand {
+  width: var(--sb-w);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  border-right: 1px solid var(--border);
+}
+.brand-mark {
+  width: 36px; height: 36px;
+  border-radius: 9px;
+  background: linear-gradient(145deg,#200604,#4a0e06);
+  border: 1px solid rgba(232,52,10,.55);
+  box-shadow: 0 0 18px rgba(200,40,8,.4);
+  display: grid; place-items: center;
+  flex-shrink: 0;
+}
+.brand-mark svg { width: 22px; height: 22px }
+.brand-text {}
+.brand-name {
+  font-family: var(--f-cyber);
+  font-weight: 900;
+  font-size: 15px;
+  letter-spacing: .13em;
+  color: var(--txt);
+  line-height: 1;
+}
+.brand-tagline {
+  font-size: 7.5px;
+  letter-spacing: .1em;
+  color: var(--txt3);
+  font-family: var(--f-mono);
+  text-transform: uppercase;
+  margin-top: 2px;
+  line-height: 1.3;
+}
+.brand-ver {
+  display: inline-block;
+  margin-top: 3px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: rgba(232,52,10,.14);
+  border: 1px solid rgba(232,52,10,.35);
+  color: var(--orange);
+  font-size: 8px;
+  font-family: var(--f-mono);
+  letter-spacing: .06em;
+}
+
+.tab-strip {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 0 12px;
+}
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 14px;
+  height: 34px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--txt2);
+  background: transparent;
+  cursor: pointer;
+  transition: color .15s, background .15s;
+  white-space: nowrap;
+}
+.tab-btn svg { width: 14px; height: 14px; opacity:.55; transition: opacity .15s }
+.tab-btn:hover { color: var(--txt); background: rgba(255,255,255,.05) }
+.tab-btn:hover svg { opacity: .85 }
+.tab-btn.active {
+  color: #fff;
+  background: rgba(232,52,10,.92);
+  box-shadow: 0 2px 12px rgba(180,30,6,.4);
+}
+.tab-btn.active svg { opacity: 1; color: #fff }
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  border-left: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.ws-selector {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 11px;
+  border-radius: 8px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--border2);
+  font-size: 12px;
+  color: var(--txt2);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color .15s;
+}
+.ws-selector:hover { border-color: rgba(232,52,10,.35); color: var(--txt) }
+.ws-selector svg { width: 13px; height: 13px }
+.wbtns { display: flex; gap: 7px; margin-left: 6px }
+.wbtn {
+  width: 13px; height: 13px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform .1s;
+  flex-shrink: 0;
+}
+.wbtn:hover { transform: scale(1.15) }
+.wbtn.min { background: var(--amber) }
+.wbtn.max { background: var(--green) }
+.wbtn.cls { background: var(--red) }
+
+/*───────────────────────────────────────────
+  MAIN AREA
+───────────────────────────────────────────*/
+.main-area {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/*───────────────────────────────────────────
+  LEFT SIDEBAR
+───────────────────────────────────────────*/
+.sidebar {
+  width: var(--sb-w);
+  flex-shrink: 0;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+.sidebar::-webkit-scrollbar { display:none }
+
+.sb-brand {
+  padding: 14px 12px 12px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sb-logo {
+  width: 44px; height: 44px;
+  border-radius: 11px;
+  background: linear-gradient(145deg,#200604,#4a0e06);
+  border: 1px solid rgba(232,52,10,.5);
+  box-shadow: 0 0 22px rgba(180,30,6,.45);
+  display: grid; place-items: center;
+  flex-shrink: 0;
+}
+.sb-logo svg { width: 28px; height: 28px }
+.sb-name { font-family: var(--f-cyber); font-weight: 900; font-size: 14px; letter-spacing: .13em; color: var(--txt); line-height:1 }
+.sb-sub  { font-size:7.5px; letter-spacing:.1em; color:var(--txt3); font-family:var(--f-mono); text-transform:uppercase; margin-top:3px; line-height:1.4 }
+.sb-ver  {
+  display:inline-block; margin-top:3px; padding:1px 5px; border-radius:4px;
+  background:rgba(232,52,10,.12); border:1px solid rgba(232,52,10,.3);
+  color:var(--orange); font-size:8px; font-family:var(--f-mono);
+}
+
+.sb-section {
+  padding: 10px 12px 3px;
+  font-size: 9px;
+  letter-spacing: .14em;
+  color: var(--txt3);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-family: var(--f-mono);
+}
+
+.nav-item {
+  margin: 2px 8px;
+  padding: 9px 10px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--txt2);
+  cursor: pointer;
+  transition: color .15s, background .15s;
+}
+.nav-item svg { width: 16px; height: 16px; flex-shrink:0; opacity:.5; transition: opacity .15s }
+.nav-item:hover { color: var(--txt); background: rgba(255,255,255,.05) }
+.nav-item:hover svg { opacity: .8 }
+.nav-item.active {
+  color: #fff;
+  background: rgba(232,52,10,.88);
+  box-shadow: 0 2px 14px rgba(180,30,6,.4);
+}
+.nav-item.active svg { opacity: 1; color: #fff }
+
+/*───────────────────────────────────────────
+  CENTER CONTENT
+───────────────────────────────────────────*/
+.content {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+  background: var(--bg);
+}
+
+/* Dark atmosphere base */
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 80% 70% at 60% 45%, rgba(120,18,4,.6) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 60% at 70% 55%, rgba(80,10,2,.7) 0%, transparent 55%),
+    var(--bg);
+}
+
+/* Real hero artwork — IMAGE 3 */
+.hero-artwork {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 18%;
+  width: 82%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 22%;
+  z-index: 1;
+  pointer-events: none;
+  /* Blend the fiery atmosphere with the dark background */
+  mix-blend-mode: normal;
+}
+
+/* Left-to-right gradient: dark for text legibility fading to transparent */
+.hero-fade-l {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgba(5,5,16,1)    0%,
+    rgba(5,5,16,.98)  16%,
+    rgba(5,5,16,.9)   28%,
+    rgba(5,5,16,.55)  40%,
+    rgba(5,5,16,.18)  56%,
+    rgba(5,5,16,.04)  68%,
+    transparent       80%
+  );
+}
+
+/* Bottom gradient: covers workflow strip + chat bar area */
+.hero-fade-b {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 230px;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    0deg,
+    rgba(5,5,16,1)   0%,
+    rgba(5,5,16,.95) 30%,
+    rgba(5,5,16,.7)  55%,
+    transparent      100%
+  );
+}
+
+/* Subtle grid */
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(232,52,10,.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(232,52,10,.04) 1px, transparent 1px);
+  background-size: 52px 52px;
+  mask-image: radial-gradient(ellipse 80% 90% at 50% 50%, #000 10%, transparent 85%);
+}
+
+/* Text overlay on left */
+.hero-text {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 210px;
+  width: 42%;
+  z-index: 3;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 20px 0 5%;
+}
+.hero-tagline {
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  letter-spacing: .2em;
+  color: rgba(232,80,20,.85);
+  line-height: 2.1;
+  margin-bottom: 18px;
+}
+.hero-tagline span { display:block }
+.hero-raven {
+  font-family: var(--f-cyber);
+  font-weight: 900;
+  font-size: 52px;
+  letter-spacing: .1em;
+  color: var(--txt);
+  line-height: 1;
+  text-shadow: 0 0 50px rgba(180,40,8,.45), 0 3px 8px rgba(0,0,0,.9);
+  margin-bottom: 8px;
+}
+.hero-subtitle {
+  font-family: var(--f-head);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: .24em;
+  color: var(--txt2);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.hero-feats {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 18px;
+}
+.hero-feat {
+  font-family: var(--f-mono);
+  font-size: 10px;
+  letter-spacing: .1em;
+  color: rgba(160,160,210,.45);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.hero-feat::before { content:"•"; color:rgba(232,52,10,.65); font-size:12px }
+.hero-quote {
+  font-style: italic;
+  font-size: 11.5px;
+  color: rgba(160,160,210,.38);
+  border-left: 2px solid rgba(232,52,10,.4);
+  padding-left: 11px;
+  line-height: 1.6;
+}
+
+/* Workflow icons strip */
+.workflow-strip {
+  position: absolute;
+  bottom: 108px;
+  left: 14px;
+  right: 14px;
+  z-index: 4;
+  display: flex;
+  gap: 7px;
+}
+.wf-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 6px;
+  border-radius: 12px;
+  background: rgba(8,8,22,.78);
+  border: 1px solid rgba(255,255,255,.07);
+  backdrop-filter: blur(18px);
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+}
+.wf-item:hover { border-color: rgba(232,52,10,.45); background: rgba(232,52,10,.1) }
+.wf-icon {
+  width: 38px; height: 38px;
+  border-radius: 9px;
+  background: rgba(232,52,10,.1);
+  border: 1px solid rgba(232,52,10,.28);
+  display: grid; place-items: center;
+}
+.wf-icon svg { width: 19px; height: 19px; color: var(--red); opacity:.85 }
+.wf-label {
+  font-family: var(--f-mono);
+  font-size: 8.5px;
+  letter-spacing: .1em;
+  color: var(--txt3);
+  text-align: center;
+  line-height: 1.4;
+}
+.wf-label b { display:block; color:var(--txt2); font-size:9.5px; letter-spacing:.1em; font-weight:600 }
+
+/* Chat composer — BOTTOM */
+.chat-bar {
+  position: absolute;
+  bottom: 10px;
+  left: 12px;
+  right: 12px;
+  z-index: 5;
+  background: rgba(10,10,26,.9);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 14px;
+  backdrop-filter: blur(24px);
+  box-shadow:
+    0 8px 40px rgba(0,0,0,.65),
+    inset 0 1px 0 rgba(255,255,255,.05);
+}
+.chat-input-row {
+  display: flex;
+  align-items: center;
+  padding: 12px 14px;
+  gap: 10px;
+}
+.chat-input { flex:1; font-size:13.5px }
+.chat-input::placeholder { color: var(--txt3) }
+.chat-mic {
+  width: 36px; height: 36px;
+  border-radius: 9px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.1);
+  display: grid; place-items: center;
+  cursor: pointer; flex-shrink: 0;
+  transition: background .15s;
+}
+.chat-mic:hover { background: rgba(255,255,255,.1) }
+.chat-mic svg { width: 15px; height: 15px; color: var(--txt2) }
+.chat-send {
+  width: 36px; height: 36px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, var(--red), var(--red2));
+  display: grid; place-items: center;
+  cursor: pointer; flex-shrink: 0;
+  transition: transform .1s, box-shadow .15s;
+}
+.chat-send:hover { transform: scale(1.05); box-shadow: 0 4px 14px rgba(180,30,6,.5) }
+.chat-send svg { width: 15px; height: 15px; color: #fff }
+.chat-tools {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 5px 10px 11px;
+  border-top: 1px solid rgba(255,255,255,.04);
+}
+.chat-tool {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 9px;
+  border-radius: 7px;
+  font-size: 11.5px;
+  color: var(--txt3);
+  background: transparent;
+  cursor: pointer;
+  transition: color .15s, background .15s;
+}
+.chat-tool svg { width: 13px; height: 13px }
+.chat-tool:hover { color: var(--txt2); background: rgba(255,255,255,.05) }
+.chat-plus {
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid var(--border2);
+  display: grid; place-items: center; cursor: pointer;
+}
+.chat-plus svg { width: 14px; height: 14px; color: var(--txt2) }
+.chat-attach {
+  margin-left: auto;
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--border);
+  display: grid; place-items: center; cursor: pointer;
+}
+.chat-attach svg { width: 13px; height: 13px; color: var(--txt2) }
+
+/*───────────────────────────────────────────
+  RIGHT PANEL
+───────────────────────────────────────────*/
+.right-panel {
+  width: var(--rp-w);
+  flex-shrink: 0;
+  background: var(--bg2);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.right-panel::-webkit-scrollbar { width: 4px }
+.right-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px }
+
+.rp-block { border-bottom: 1px solid var(--border); padding: 14px }
+
+.rp-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.rp-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--txt);
+  font-family: var(--f-head);
+}
+.rp-title svg { width: 14px; height: 14px; color: var(--red) }
+
+.rp-acts { display: flex; gap: 6px }
+.btn-new-task {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 7px;
+  font-size: 11.5px;
+  background: rgba(232,52,10,.12);
+  border: 1px solid rgba(232,52,10,.32);
+  color: var(--orange);
+  cursor: pointer;
+  transition: background .15s;
+}
+.btn-new-task:hover { background: rgba(232,52,10,.22) }
+.btn-new-task svg { width: 11px; height: 11px }
+.btn-gear {
+  width: 28px; height: 28px;
+  border-radius: 7px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--border);
+  display: grid; place-items: center; cursor: pointer;
+}
+.btn-gear svg { width: 12px; height: 12px; color: var(--txt2) }
+
+.no-task { text-align: center; padding: 16px 8px }
+.no-task-icon {
+  width: 48px; height: 48px;
+  border-radius: 11px;
+  background: rgba(232,52,10,.07);
+  border: 1px solid rgba(232,52,10,.2);
+  margin: 0 auto 11px;
+  display: grid; place-items: center;
+}
+.no-task-icon svg { width: 24px; height: 24px; color: var(--red); opacity:.55 }
+.no-task-lbl { font-size: 12.5px; color: var(--txt2); font-weight: 500; margin-bottom: 4px }
+.no-task-sub { font-size: 11px; color: var(--txt3); line-height: 1.5 }
+
+.quick-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+  margin-top: 12px;
+}
+.quick-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 6px;
+  border-radius: 9px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.quick-btn:hover { border-color: rgba(232,52,10,.38); background: rgba(232,52,10,.07) }
+.quick-btn svg { width: 17px; height: 17px; color: var(--txt2) }
+.quick-btn span { font-size: 10.5px; color: var(--txt3); font-weight: 500 }
+.quick-btn:hover svg { color: var(--red) }
+.quick-btn:hover span { color: var(--txt2) }
+
+/* System Status */
+.sys-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.sys-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 600;
+  font-family: var(--f-mono);
+  letter-spacing: .06em;
+  color: var(--green);
+}
+.sys-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+  animation: sysPulse 2s ease-in-out infinite;
+}
+@keyframes sysPulse {
+  0%,100%{box-shadow:0 0 5px var(--green)}
+  50%   {box-shadow:0 0 14px var(--green)}
+}
+
+.sys-rows { display: flex; flex-direction: column; gap: 5px }
+.sys-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 9px;
+  border-radius: 8px;
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(255,255,255,.025);
+}
+.sys-row-l { display: flex; align-items: center; gap: 8px }
+.sys-ic {
+  width: 26px; height: 26px;
+  border-radius: 7px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--border);
+  display: grid; place-items: center;
+  flex-shrink: 0;
+}
+.sys-ic svg { width: 13px; height: 13px; color: var(--txt3) }
+.sys-lbl { font-size: 11.5px; color: var(--txt2) }
+.sys-val {
+  font-size: 10.5px;
+  color: var(--txt3);
+  font-family: var(--f-mono);
+  display: flex; align-items: center; gap: 5px;
+}
+.sdot { width: 6px; height: 6px; border-radius: 50%; flex-shrink:0 }
+.sdot-g { background: var(--green); box-shadow: 0 0 5px var(--green) }
+.sdot-a { background: var(--amber); box-shadow: 0 0 5px var(--amber) }
+.sdot-r { background: var(--red);   box-shadow: 0 0 5px var(--red) }
+
+/* Resource Usage */
+.res-rows { display: flex; flex-direction: column; gap: 9px }
+.res-row {}
+.res-lbl { display: flex; justify-content: space-between; margin-bottom: 5px }
+.res-name { font-size: 11px; color: var(--txt2); font-family: var(--f-mono) }
+.res-val  { font-size: 11px; color: var(--txt3); font-family: var(--f-mono) }
+.res-track { height: 5px; border-radius: 3px; background: rgba(255,255,255,.06); overflow: hidden }
+.res-fill  { height: 100%; border-radius: 3px; transition: width .8s var(--ease) }
+.fill-bl { background: linear-gradient(90deg,#3b82f6,#60a5fa) }
+.fill-or { background: linear-gradient(90deg,#ff6b35,#f59e0b) }
+.fill-gn { background: linear-gradient(90deg,#22c55e,#4ade80) }
+.fill-pk { background: linear-gradient(90deg,#e8340a,#ff6b35) }
+
+/*───────────────────────────────────────────
+  STATUS BAR
+───────────────────────────────────────────*/
+.statusbar {
+  height: var(--sb-h);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  background: rgba(2,2,10,.97);
+  border-top: 1px solid rgba(255,255,255,.05);
+  padding: 0 12px;
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  user-select: none;
+  gap: 0;
+}
+.sb-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 10px;
+  color: var(--txt3);
+  border-right: 1px solid rgba(255,255,255,.05);
+  white-space: nowrap;
+}
+.sb-item:first-child { padding-left: 0 }
+.sb-item:last-child  { margin-left: auto; border-right: none; padding-right: 0 }
+.sb-ready { color: var(--green) }
+.sb-dot   { width: 5px; height: 5px; border-radius: 50%; flex-shrink:0 }
+
+/* Scanline */
+.scanline {
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 9999;
+  overflow: hidden;
+}
+.scanline::after {
+  content: "";
+  position: absolute; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(232,52,10,.14), transparent);
+  animation: scan 10s linear infinite;
+}
+@keyframes scan { 0%{top:-1%} 100%{top:101%} }
+
+/* ── Conversation area ──────────────────────────────────────────── */
+.chat-messages {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 108px;
+  z-index: 10;
+  overflow-y: auto;
+  padding: 20px 20px 10px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: rgba(5,5,16,.92);
+  backdrop-filter: blur(20px);
+}
+.chat-messages::-webkit-scrollbar { width: 4px }
+.chat-messages::-webkit-scrollbar-track { background: transparent }
+.chat-messages::-webkit-scrollbar-thumb { background: rgba(232,52,10,.4); border-radius: 2px }
+
+.msg-row { display: flex; flex-direction: column; gap: 4px; max-width: 88% }
+.msg-row.user { align-self: flex-end; align-items: flex-end }
+.msg-row.assistant { align-self: flex-start; align-items: flex-start }
+
+.msg-label { font-size: 10px; font-weight: 600; letter-spacing: .06em;
+  color: var(--txt3); padding: 0 4px }
+.msg-row.user .msg-label { color: rgba(232,52,10,.75) }
+
+.msg-bubble {
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--txt1);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.msg-row.user .msg-bubble {
+  background: rgba(232,52,10,.2);
+  border: 1px solid rgba(232,52,10,.35);
+  border-radius: 14px 14px 4px 14px;
+}
+.msg-row.assistant .msg-bubble {
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px 14px 14px 4px;
+}
+.msg-bubble .msg-code { position: relative; white-space: pre; overflow-x: auto; margin: 8px 0;
+  padding: 10px 12px; background: rgba(0,0,0,.45); border: 1px solid rgba(255,255,255,.08);
+  border-radius: 8px; font: 12.5px/1.5 ui-monospace, "JetBrains Mono", monospace; direction: ltr; text-align: left }
+.msg-bubble .msg-copy { position: absolute; top: 6px; right: 6px; font-size: 10.5px; padding: 2px 8px;
+  border-radius: 6px; border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.06);
+  color: var(--txt2); cursor: pointer }
+.msg-bubble .msg-meta { margin-top: 6px; font-size: 11px; color: var(--txt3) }
+.msg-bubble.thinking {
+  color: var(--txt3);
+  font-style: italic;
+}
+.msg-bubble.error {
+  background: rgba(200,30,30,.15);
+  border-color: rgba(200,30,30,.35);
+  color: #f87171;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.35} }
+.thinking-dot { display: inline-block; animation: blink 1.2s ease-in-out infinite }
+.thinking-dot:nth-child(2){ animation-delay:.2s }
+.thinking-dot:nth-child(3){ animation-delay:.4s }
+/* ── V7 Page View Styles ────────────────────────────────────────── */
+.page-view{display:none;flex:1;overflow:hidden;background:var(--bg);position:relative;flex-direction:column}
+.page-view.pv-active{display:flex}
+.pv-header{padding:18px 24px 14px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.pv-title{font-family:var(--f-head);font-size:17px;font-weight:600;color:var(--txt);margin-bottom:3px}
+.pv-sub{font-size:11px;color:var(--txt2)}
+.pv-body{flex:1;overflow-y:auto;padding:20px 24px}
+.pv-body::-webkit-scrollbar{width:4px}
+.pv-body::-webkit-scrollbar-thumb{background:rgba(232,52,10,.3);border-radius:2px}
+.pv-actions{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.pv-btn{font-size:12px;padding:7px 14px;border-radius:6px;font-weight:500;cursor:pointer;transition:background .15s;border:none;font-family:var(--f-ui)}
+.pv-btn.primary{background:var(--red);color:#fff}
+.pv-btn.primary:hover{background:var(--red2)}
+.pv-btn.ghost{background:rgba(255,255,255,.06);color:var(--txt2);border:1px solid var(--border)}
+.pv-btn.ghost:hover{color:var(--txt);background:rgba(255,255,255,.09)}
+.pv-btn.danger{background:rgba(232,52,10,.15);color:var(--red);border:1px solid rgba(232,52,10,.25)}
+.pv-btn.danger:hover{background:rgba(232,52,10,.25)}
+.pv-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;color:var(--txt2);text-align:center;gap:8px}
+.pv-empty svg{opacity:.15}
+.pv-empty h3{font-size:15px;color:var(--txt3);font-weight:500}
+.pv-empty p{font-size:12px;max-width:280px;line-height:1.6}
+.pv-table{width:100%;border-collapse:collapse;font-size:12px}
+.pv-table th{text-align:left;padding:8px 10px;color:var(--txt2);font-weight:500;border-bottom:1px solid var(--border)}
+.pv-table td{padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:top;color:var(--txt)}
+.pv-table tr:hover td{background:rgba(255,255,255,.02)}
+.pv-badge{display:inline-block;font-size:10px;padding:2px 6px;border-radius:4px;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.pv-badge.green{background:rgba(34,197,94,.15);color:var(--green)}
+.pv-badge.amber{background:rgba(245,158,11,.15);color:var(--amber)}
+.pv-badge.red{background:rgba(232,52,10,.15);color:var(--red)}
+#view-ravensec a{color:#22d3ee;text-decoration:none}#view-ravensec a:hover{text-decoration:underline}
+#view-ravensec select,#view-ravensec textarea,#view-ravensec input{background:rgba(255,255,255,.04);color:var(--txt);border:1px solid var(--border);border-radius:6px}
+.pv-badge.blue{background:rgba(59,130,246,.15);color:var(--blue)}
+.pv-badge.gray{background:rgba(128,128,184,.1);color:var(--txt2)}
+/* Honest "not implemented / not wired" marker for placeholder pages (no fake feature). */
+.ni-badge{display:inline-block;margin-left:8px;font-size:9px;vertical-align:middle;padding:2px 6px;border-radius:4px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;background:rgba(128,128,184,.12);color:var(--txt2);border:1px solid var(--border)}
+.pv-card{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:10px}
+.pv-card-title{font-size:13px;font-weight:600;color:var(--txt);margin-bottom:4px}
+.pv-card-meta{font-size:11px;color:var(--txt2)}
+.pv-form-row{margin-bottom:16px}
+.pv-form-lbl{font-size:12px;font-weight:500;color:var(--txt2);margin-bottom:6px;display:block}
+.pv-form-input,.pv-form-select{width:100%;max-width:420px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--txt);font-size:13px;font-family:var(--f-ui)}
+.pv-form-input:focus,.pv-form-select:focus{outline:none;border-color:var(--red)}
+.pv-form-hint{font-size:11px;color:var(--txt3);margin-top:4px}
+.pv-form-input.mono{font-family:var(--f-mono);font-size:12px}
+.term-output{font-family:var(--f-mono);font-size:12px;background:rgba(0,0,0,.55);border:1px solid var(--border);border-radius:8px;padding:12px 14px;height:340px;overflow-y:auto;color:#d0ffd0;white-space:pre-wrap;word-break:break-all;margin-bottom:10px}
+.term-output::-webkit-scrollbar{width:4px}
+.term-output::-webkit-scrollbar-thumb{background:rgba(34,197,94,.3);border-radius:2px}
+.term-input-row{display:flex;gap:8px;align-items:center}
+.term-prompt{color:var(--red);font-family:var(--f-mono);font-size:12px;flex-shrink:0;user-select:none}
+.term-input{flex:1;font-family:var(--f-mono);font-size:12px;background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:6px;padding:8px 12px;color:var(--txt);outline:none}
+.term-input:focus{border-color:rgba(34,197,94,.5)}
+.term-shell-sel{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--txt2);font-size:12px;flex-shrink:0;font-family:var(--f-ui)}
+.term-run-btn{background:var(--green);color:#000;font-size:12px;padding:8px 16px;border-radius:6px;font-weight:600;flex-shrink:0;border:none;cursor:pointer;font-family:var(--f-ui)}
+.term-run-btn:hover{opacity:.85}
+.term-run-btn:disabled{opacity:.4;cursor:not-allowed}
+.ws-cards{display:flex;flex-direction:column;gap:10px}
+.ws-card{display:flex;align-items:center;gap:14px;padding:14px 16px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all .15s}
+.ws-card:hover{background:rgba(255,255,255,.06);border-color:var(--border2)}
+.ws-card.ws-active{border-color:rgba(232,52,10,.45);background:rgba(232,52,10,.06)}
+.ws-card-icon{width:36px;height:36px;background:rgba(232,52,10,.12);border-radius:8px;display:grid;place-items:center;flex-shrink:0;color:var(--red)}
+.ws-card-name{font-size:14px;font-weight:500;color:var(--txt)}
+.ws-card-meta{font-size:11px;color:var(--txt2);margin-top:1px}
+.pv-loading{display:flex;align-items:center;gap:8px;color:var(--txt2);font-size:12px;padding:20px 0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pv-spinner{width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:spin .7s linear infinite}
+.ai-audit-row{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px}
+.ai-audit-row:last-child{border-bottom:none}
+.ai-audit-lbl{color:var(--txt2);width:180px;flex-shrink:0;padding-top:1px}
+.ai-audit-val{color:var(--txt);flex:1}
+.ai-audit-val.mono{font-family:var(--f-mono);font-size:11px}
+/* ── end V7 Page View Styles ────────────────────────────────────── */
+/* Honest DISABLED affordance (A14): a disabled control is visibly inert — greyed,
+   not-allowed cursor, and no live hover affordance. No dead control looks clickable. */
+.tab-btn[disabled],.tab-btn[aria-disabled="true"]{opacity:.38;cursor:not-allowed;pointer-events:none}
+.chat-mic[disabled],.btn-new-task[disabled]{opacity:.4;cursor:not-allowed}
+.chat-mic[disabled]:hover,.btn-new-task[disabled]:hover{background:transparent}
+.chat-plus[aria-disabled="true"],.chat-attach[aria-disabled="true"]{opacity:.4;cursor:not-allowed}
+.chat-plus[aria-disabled="true"]:hover,.chat-attach[aria-disabled="true"]:hover{background:rgba(255,255,255,.04)}
+.wbtn[aria-disabled="true"]{opacity:.4;cursor:not-allowed}
+.wbtn[aria-disabled="true"]:hover{transform:none}
+</style>
+</head>
+<body>
+
+<div class="scanline"></div>
+
+<div class="shell">
+
+  <!-- ═══════════ TOP BAR ═══════════ -->
+  <div class="topbar">
+
+    <!-- Brand (aligns with sidebar width) -->
+    <div class="topbar-brand">
+      <div class="brand-mark">
+        <!-- Raven silhouette SVG -->
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 3 Q10 2 6 7 Q2 12 4 18 Q6 24 12 27 Q16 29 20 27 Q26 24 28 18 Q30 12 26 7 Q22 2 16 3Z"
+                fill="rgba(232,52,10,.2)" stroke="rgba(232,52,10,.7)" stroke-width="1.2"/>
+          <!-- wings -->
+          <path d="M4 15 Q1 11 2 8 Q7 13 10 15" fill="rgba(232,52,10,.6)"/>
+          <path d="M28 15 Q31 11 30 8 Q25 13 22 15" fill="rgba(232,52,10,.6)"/>
+          <!-- eye -->
+          <circle cx="12.5" cy="12" r="2" fill="rgba(255,130,40,.95)"/>
+          <circle cx="12.5" cy="12" r=".8" fill="#fff"/>
+          <!-- beak -->
+          <path d="M4 18 L1 20 L5.5 19.5Z" fill="rgba(200,40,10,.85)"/>
+          <!-- body shading -->
+          <path d="M14 20 Q16 26 18 24 Q20 22 18 20" fill="rgba(232,52,10,.15)"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <div class="brand-name">RAVEN</div>
+        <div class="brand-tagline">AI SECURITY<br>RESEARCH OS</div>
+        <div class="brand-ver">v7.0.0</div>
+      </div>
+    </div>
+
+    <!-- Tab navigation -->
+    <div class="tab-strip">
+      <button class="tab-btn active" data-tab="chat">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+        </svg>
+        Chat
+      </button>
+      <button class="tab-btn" data-tab="research" disabled aria-disabled="true" title="Not implemented — no Research view exists">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/>
+        </svg>
+        Research
+      </button>
+      <button class="tab-btn" data-tab="tools" disabled aria-disabled="true" title="Not implemented — no Tools view exists">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3-3a2.83 2.83 0 00-4-4z"/>
+          <path d="M15 7L9 13 5 9l-3 9 9-3 6-6"/>
+        </svg>
+        Tools
+      </button>
+      <button class="tab-btn" data-tab="workspace">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+          <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+          <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+          <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+        </svg>
+        Workspace
+      </button>
+      <button class="tab-btn" data-tab="program">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        Program
+      </button>
+      <button class="tab-btn" data-tab="learning">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/>
+          <path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/>
+        </svg>
+        Learning
+      </button>
+    </div>
+
+    <!-- Right: workspace + win controls -->
+    <div class="topbar-right">
+      <div class="ws-selector" onclick="navigateTo('workspace')" title="Open the Workspace page" style="cursor:pointer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+          <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+          <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+          <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+        </svg>
+        <span id="wsSelLabel">Workspace: Default</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 9l6 6 6-6"/>
+        </svg>
+      </div>
+      <div class="wbtns">
+        <div class="wbtn min" aria-disabled="true" title="Minimize not available"></div>
+        <div class="wbtn max" aria-disabled="true" title="Maximize not available"></div>
+        <div class="wbtn cls" id="btnClose" title="Close window (packaged app)"></div>
+      </div>
+    </div>
+
+  </div><!-- /topbar -->
+
+  <!-- ═══════════ MAIN ═══════════ -->
+  <div class="main-area">
+
+    <!-- LEFT SIDEBAR -->
+    <div class="sidebar">
+
+      <div class="sb-section">Main</div>
+      <div class="nav-item active" data-nav="chat">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        AI Chat
+      </div>
+      <div class="nav-item" data-nav="ravensec">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>
+        AI Agent
+      </div>
+      <div class="nav-item" data-nav="tasks">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polyline points="12 6 12 12 16 14"/></svg>
+        Tasks
+      </div>
+      <div class="nav-item" data-nav="browser">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>
+        Browser
+      </div>
+      <div class="nav-item" data-nav="traffic">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12h4l3-8 4 16 3-8h2"/></svg>
+        Traffic
+      </div>
+      <div class="nav-item" data-nav="terminal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9l3 3-3 3M13 15h4"/></svg>
+        Terminal
+      </div>
+
+      <div class="sb-section">Research</div>
+      <a class="nav-item" href="/workbench" id="navWorkbench" style="text-decoration:none" title="Scope, collection + endpoint discovery, surface, Repeater, Intruder, Access Control, XSS lab, findings and report export">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2L3 6.5v5c0 5 3.8 8.6 9 10.5 5.2-1.9 9-5.5 9-10.5v-5L12 2z"/><path d="M9 12l2 2 4-4"/></svg>
+        Recon Workbench
+      </a>
+      <div class="nav-item" data-nav="recon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+        Recon
+      </div>
+      <div class="nav-item" data-nav="scripts">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9.5 8L5 12l4.5 4M14.5 8L19 12l-4.5 4"/></svg>
+        Scripts
+      </div>
+      <div class="nav-item" data-nav="experiments">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v8m0 0l-4 9h14l-4-9M9 11h6"/></svg>
+        Experiments
+      </div>
+      <div class="nav-item" data-nav="evidence">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Evidence
+      </div>
+
+      <div class="sb-section">Knowledge</div>
+      <div class="nav-item" data-nav="knowledge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2a7 7 0 017 7c0 4-3 6-4 9H9c-1-3-4-5-4-9a7 7 0 017-7z"/><path d="M9 21h6"/></svg>
+        Knowledge
+      </div>
+      <div class="nav-item" data-nav="learning">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+        Learning
+      </div>
+
+      <div class="sb-section">System</div>
+      <div class="nav-item" data-nav="workspace">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Workspace
+      </div>
+      <div class="nav-item" data-nav="program">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Program Mode
+      </div>
+      <div class="nav-item" data-nav="plugins">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.24 12.24a6 6 0 00-8.49-8.49L5 10.5V19h8.5z"/><line x1="16" y1="8" x2="2" y2="22"/><line x1="17.5" y1="15" x2="9" y2="15"/></svg>
+        Plugins
+      </div>
+      <div class="nav-item" data-nav="settings" style="margin-top:6px;margin-bottom:10px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Settings
+      </div>
+
+    </div><!-- /sidebar -->
+
+    <!-- CENTER — HERO -->
+    <div class="content" id="view-chat">
+
+      <!-- Base atmosphere -->
+      <div class="hero-bg"></div>
+      <div class="hero-grid"></div>
+
+      <!-- *** REAL HERO ARTWORK — IMAGE 3 *** -->
+      <img class="hero-artwork"
+           src="data:image/jpeg;base64,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"
+           alt=""
+           aria-hidden="true"
+           onerror="this.style.display='none'"/>
+
+      <!-- Gradient overlays -->
+      <div class="hero-fade-l"></div>
+      <div class="hero-fade-b"></div>
+
+      <!-- Text overlay (left side) -->
+      <div class="hero-text">
+        <div class="hero-tagline">
+          <span>YOU RESEARCH</span>
+          <span>I ASSIST</span>
+          <span>WE DISCOVER</span>
+          <span>WE LEARN</span>
+          <span>WE IMPROVE</span>
+        </div>
+        <div class="hero-raven">RAVEN</div>
+        <div class="hero-subtitle">AI Security Research Assistant</div>
+        <div class="hero-feats">
+          <div class="hero-feat">MULTI-LANGUAGE</div>
+          <div class="hero-feat">LOCAL AI MODELS</div>
+          <div class="hero-feat">BROWSER + PROXY</div>
+          <div class="hero-feat">TERMINAL + SCRIPTS</div>
+          <div class="hero-feat">EVIDENCE &amp; REPORTS</div>
+          <div class="hero-feat">SELF LEARNING</div>
+        </div>
+        <div class="hero-quote">"Knowledge Turns Observation Into Power"</div>
+      </div>
+
+      <!-- Workflow strip -->
+      <div class="workflow-strip">
+        <div class="wf-item">
+          <div class="wf-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+          </div>
+          <div class="wf-label"><b>RECON</b>UNDERSTAND</div>
+        </div>
+        <div class="wf-item">
+          <div class="wf-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+          </div>
+          <div class="wf-label"><b>ANALYZE</b>REASON</div>
+        </div>
+        <div class="wf-item">
+          <div class="wf-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v8m0 0l-4 9h14l-4-9M9 11h6"/></svg>
+          </div>
+          <div class="wf-label"><b>TEST</b>EXPERIMENT</div>
+        </div>
+        <div class="wf-item">
+          <div class="wf-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div class="wf-label"><b>PROVE</b>EVIDENCE</div>
+        </div>
+        <div class="wf-item">
+          <div class="wf-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+          </div>
+          <div class="wf-label"><b>LEARN</b>IMPROVE</div>
+        </div>
+      </div>
+
+      <!-- Conversation area — shown when messages exist, hides hero -->
+      <div id="chatMessages" class="chat-messages" style="display:none;"></div>
+
+      <!-- Chat composer — BOTTOM -->
+      <div class="chat-bar">
+        <div class="chat-input-row">
+          <input class="chat-input" id="chatInput"
+                 placeholder="Ask me anything... (Arabic, English, or mixed)"
+                 autocomplete="off" spellcheck="false"/>
+          <button class="chat-mic" title="Voice input — not implemented" disabled aria-disabled="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M12 1a3 3 0 013 3v8a3 3 0 01-6 0V4a3 3 0 013-3z"/>
+              <path d="M19 10v2a7 7 0 01-14 0v-2"/>
+              <line x1="12" y1="19" x2="12" y2="23"/>
+              <line x1="8" y1="23" x2="16" y2="23"/>
+            </svg>
+          </button>
+          <button class="chat-send" id="chatSend" title="Send">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="22" y1="2" x2="11" y2="13"/>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+          </button>
+        </div>
+        <div class="chat-tools">
+          <div class="chat-plus" aria-disabled="true" title="Add attachment — not implemented">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </div>
+          <button class="chat-tool" onclick="navigateTo('browser')" title="Open Browser page">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20"/></svg>
+            Web
+          </button>
+          <button class="chat-tool" onclick="navigateTo('workspace')" title="Open Workspace page">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+            Workspace
+          </button>
+          <button class="chat-tool" onclick="navigateTo('scripts')" title="Open Scripts page">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            Code
+          </button>
+          <button class="chat-tool" onclick="navigateTo('terminal')" title="Open Terminal page">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9l3 3-3 3M13 15h4"/></svg>
+            Terminal
+          </button>
+          <div class="chat-attach" aria-disabled="true" title="Attach file — not implemented">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+
+
+    <!-- ── TASKS PAGE ─────────────────────────────────── -->
+    <div class="page-view" id="view-tasks">
+      <div class="pv-header">
+        <div><div class="pv-title">Tasks</div><div class="pv-sub">Runtime tasks and recon jobs</div></div>
+        <div class="pv-actions" style="margin:0">
+          <button class="pv-btn ghost" onclick="loadTasks()">Refresh</button>
+          <span class="pv-badge red estop-ind" role="status" style="display:none;align-self:center">E-Stop engaged</span>
+          <button class="pv-btn ghost" onclick="doEmergencyStop()" style="color:var(--red)">Emergency Stop</button>
+          <button class="pv-btn ghost estop-resume" onclick="doClearStop()" title="Clear Emergency Stop and allow new requests">Resume</button>
+        </div>
+      </div>
+      <div class="pv-body">
+        <div class="pv-card" style="margin-bottom:14px">
+          <div style="font-size:13px;font-weight:600;margin-bottom:6px">Run Agent Task</div>
+          <div style="font-size:12px;color:var(--txt2);line-height:1.5;margin-bottom:10px">
+            Start a harmless deterministic RAVEN_AGENT task. The objective is recorded as a
+            local, confidence-capped knowledge note through the capability-gated dispatcher —
+            no network, no shell. Provenance is boundary-assigned (the objective text cannot
+            claim a privileged actor).
+          </div>
+          <div style="display:flex;gap:8px">
+            <input id="agent-objective" type="text" placeholder="e.g. record a scope note for example.com"
+                   style="flex:1;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--txt);font-size:12px">
+            <button class="pv-btn" onclick="runAgentTask()">Run Agent Task</button>
+          </div>
+          <div id="agent-run-status" style="display:none;margin-top:10px;font-family:var(--f-mono);font-size:11px;color:var(--txt2);background:rgba(0,0,0,.3);padding:8px 10px;border-radius:6px;border:1px solid var(--border)"></div>
+        </div>
+        <div id="tasks-loading" class="pv-loading"><div class="pv-spinner"></div> Loading tasks…</div>
+        <div id="tasks-content" style="display:none"><div id="tasks-body"></div></div>
+      </div>
+    </div>
+
+    <!-- ── BROWSER PAGE ────────────────────────────────── -->
+    <div class="page-view" id="view-browser">
+      <div class="pv-header">
+        <div><div class="pv-title">Browser</div><div class="pv-sub">HTTP research client — scope-aware</div></div>
+      </div>
+      <div class="pv-body">
+        <div class="pv-form-row">
+          <label class="pv-form-lbl">URL</label>
+          <div style="display:flex;gap:8px;max-width:640px">
+            <select id="br-method" class="pv-form-select" style="max-width:90px">
+              <option>GET</option><option>POST</option><option>PUT</option><option>DELETE</option><option>HEAD</option>
+            </select>
+            <input id="br-url" class="pv-form-input" placeholder="https://example.com/api/endpoint" style="max-width:none;flex:1"/>
+            <button class="pv-btn primary" onclick="doBrowserSend()">Send</button>
+          </div>
+        </div>
+        <div class="pv-form-row">
+          <label class="pv-form-lbl">Body (JSON/text, optional)</label>
+          <textarea id="br-body" class="pv-form-input mono" rows="3" placeholder="{}" style="max-width:640px;resize:vertical;height:70px"></textarea>
+        </div>
+        <div id="br-result" style="display:none">
+          <div class="pv-card" style="margin-top:8px">
+            <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px">
+              <span id="br-status" class="pv-badge gray">---</span>
+              <span id="br-url-disp" style="font-size:11px;color:var(--txt2)"></span>
+              <span id="br-meta" style="font-size:11px;color:var(--txt2);margin-left:auto"></span>
+            </div>
+            <details id="br-headers-wrap" style="margin-bottom:8px">
+              <summary style="font-size:11px;color:var(--txt2);cursor:pointer">Response headers</summary>
+              <div id="br-headers" class="term-output mono" style="max-height:140px;color:var(--txt2);font-size:11px;margin-top:6px"></div>
+            </details>
+            <div style="font-size:11px;color:var(--txt2);margin-bottom:6px">Response body</div>
+            <div id="br-response" class="term-output" style="height:200px;color:var(--txt)"></div>
+          </div>
+        </div>
+        <div id="br-error" style="display:none;font-size:12px;margin-top:8px"></div>
+        <div class="pv-card" style="margin-top:12px">
+          <div style="display:flex;align-items:center;margin-bottom:6px">
+            <div style="font-size:11px;color:var(--txt2)">Session history</div>
+            <button class="pv-btn ghost" style="margin-left:auto;font-size:11px" onclick="clearBrowserHistory()">Clear</button>
+          </div>
+          <div id="br-history" style="font-size:12px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TRAFFIC PAGE ────────────────────────────────── -->
+    <div class="page-view" id="view-traffic">
+      <div class="pv-header">
+        <div><div class="pv-title">Traffic</div><div class="pv-sub">Captured HTTP requests and responses</div></div>
+        <button class="pv-btn ghost" onclick="loadTraffic()">Refresh</button>
+      </div>
+      <div class="pv-body">
+        <div id="traffic-loading" class="pv-loading"><div class="pv-spinner"></div> Loading traffic…</div>
+        <div id="traffic-content" style="display:none"><div id="traffic-body"></div></div>
+      </div>
+    </div>
+
+    <!-- ── TERMINAL PAGE ───────────────────────────────── -->
+    <div class="page-view" id="view-terminal">
+      <div class="pv-header">
+        <div><div class="pv-title">Terminal</div><div class="pv-sub" id="term-shell-status">Checking available shells…</div></div>
+        <div class="pv-actions" style="margin:0">
+          <button class="pv-btn ghost" onclick="termClear()">Clear</button>
+        </div>
+      </div>
+      <div class="pv-body">
+        <div class="term-output" id="termOutput"><span style="color:rgba(255,255,255,.25)">RAVEN Terminal — type a command and press Enter or Run
+</span></div>
+        <div class="term-input-row">
+          <span class="term-prompt">RAVEN &gt;</span>
+          <select id="termShell" class="term-shell-sel">
+            <option value="powershell">PowerShell</option>
+            <option value="cmd">CMD</option>
+            <option value="bash">Bash</option>
+          </select>
+          <input id="termInput" class="term-input" placeholder="Enter command…" autocomplete="off" spellcheck="false"/>
+          <button id="termRun" class="term-run-btn" onclick="termRun()">Run</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RECON PAGE ──────────────────────────────────── -->
+    <div class="page-view" id="view-recon">
+      <div class="pv-header">
+        <div><div class="pv-title">Recon</div><div class="pv-sub">Scheduled collection jobs</div></div>
+        <div class="pv-actions" style="margin:0">
+          <button class="pv-btn primary" onclick="startRecon()">Start Collection</button>
+          <button class="pv-btn ghost" onclick="loadRecon()">Refresh</button>
+        </div>
+      </div>
+      <div class="pv-body">
+        <div id="recon-loading" class="pv-loading"><div class="pv-spinner"></div> Loading jobs…</div>
+        <div id="recon-content" style="display:none"><div id="recon-body"></div></div>
+      </div>
+    </div>
+
+    <!-- ── SCRIPTS PAGE ────────────────────────────────── -->
+    <div class="page-view" id="view-scripts">
+      <div class="pv-header">
+        <div><div class="pv-title">Scripts</div><div class="pv-sub">Script Workshop — sandboxed execution</div></div>
+      </div>
+      <div class="pv-body">
+        <div class="pv-empty">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9.5 8L5 12l4.5 4M14.5 8L19 12l-4.5 4"/></svg>
+          <h3>Script Workshop <span class="ni-badge">Not implemented</span></h3>
+          <p>The Script Workshop is <b>not implemented in this build</b> — there is no script backend wired to this page. Real, capability-gated command execution is available on the Terminal page.</p>
+          <button class="pv-btn ghost" style="margin-top:12px" onclick="navigateTo('terminal')">Open Terminal</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── EXPERIMENTS PAGE ───────────────────────────── -->
+    <div class="page-view" id="view-experiments">
+      <div class="pv-header">
+        <div><div class="pv-title">Experiments</div><div class="pv-sub">Controlled research experiments</div></div>
+      </div>
+      <div class="pv-body">
+        <div class="pv-empty">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v8m0 0l-4 9h14l-4-9M9 11h6"/></svg>
+          <h3>Experiments <span class="ni-badge">Not implemented</span></h3>
+          <p>Controlled baseline/variant experiments are <b>not implemented in this build</b> — no experiment backend is wired. This page is an honest placeholder, not a working feature.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── EVIDENCE PAGE ───────────────────────────────── -->
+    <div class="page-view" id="view-evidence">
+      <div class="pv-header">
+        <div><div class="pv-title">Evidence</div><div class="pv-sub">Evidence graph — candidate findings (all require human verification)</div></div>
+        <button class="pv-btn ghost" onclick="loadEvidence()">Refresh</button>
+      </div>
+      <div class="pv-body">
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <input id="ev-note-input" type="text" placeholder="Add a researcher note (advisory — never a verdict)…" style="flex:1;padding:6px 10px" />
+          <button class="pv-btn" onclick="addEvidenceNote()">Add note</button>
+        </div>
+        <div id="evidence-loading" class="pv-loading"><div class="pv-spinner"></div> Loading evidence…</div>
+        <div id="evidence-content" style="display:none"><div id="evidence-body"></div></div>
+      </div>
+    </div>
+
+    <!-- ── KNOWLEDGE PAGE ──────────────────────────────── -->
+    <div class="page-view" id="view-knowledge">
+      <div class="pv-header">
+        <div><div class="pv-title">Knowledge</div><div class="pv-sub">Knowledge OS — verified research knowledge</div></div>
+        <button class="pv-btn ghost" onclick="loadKnowledge()">Refresh</button>
+      </div>
+      <div class="pv-body">
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <input id="kb-title-input" type="text" placeholder="Title" style="flex:0 0 30%;padding:6px 10px" />
+          <input id="kb-body-input" type="text" placeholder="Knowledge entry body…" style="flex:1;padding:6px 10px" />
+          <button class="pv-btn" onclick="addKnowledgeEntry()">Add entry</button>
+        </div>
+        <div id="knowledge-loading" class="pv-loading"><div class="pv-spinner"></div> Loading knowledge…</div>
+        <div id="knowledge-content" style="display:none"><div id="knowledge-body"></div></div>
+      </div>
+    </div>
+
+    <!-- ── RAVEN-SEC AGENT PAGE ────────────────────────── -->
+    <div class="page-view" id="view-ravensec">
+      <div class="pv-header">
+        <div><div class="pv-title">AI Agent</div>
+          <div class="pv-sub" id="rsModel">Loading model status…</div>
+          <div class="pv-sub" id="rsTrain" style="margin-top:2px"></div></div>
+        <button class="pv-btn ghost" id="rsRefresh">Refresh</button>
+      </div>
+      <div class="pv-body" style="display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:18px">
+        <div style="min-width:0">
+          <textarea id="rsObjective" rows="3" placeholder="Objective — e.g. Explain how to test the login of app.target.com for SQL injection and send one safe probe; or: What is CVE-2024-3400 and how do I check for it?" style="width:100%;padding:10px;resize:vertical"></textarea>
+          <div style="display:flex;gap:8px;align-items:center;margin:8px 0 14px">
+            <select id="rsEngine" title="Which model runs the agent"><option value="claude">Claude Opus 5.5 (API)</option><option value="ravensec">RAVEN-Sec 0.5B (local)</option></select>
+            <button class="pv-btn primary" id="rsStart">Start agent</button>
+            <button class="pv-btn ghost" id="rsCancel" style="display:none">Cancel run</button>
+            <select id="rsRuns" style="margin-left:auto;max-width:55%"><option value="">Previous runs…</option></select>
+          </div>
+          <div style="font-size:11px;color:var(--txt2);margin-bottom:10px">Search, read and file writes run automatically on trusted sources. Every <b>http</b> request to a target and every <b>shell</b> command waits for your Approve; out-of-scope requests are blocked. Output is advisory.</div>
+          <div id="rsTimeline"></div>
+        </div>
+        <div style="min-width:0;border-left:1px solid var(--border);padding-left:18px">
+          <div style="font-size:12px;font-weight:600;color:var(--txt2);margin-bottom:6px">Research browser — trusted sources only</div>
+          <div style="display:flex;gap:6px;margin-bottom:8px"><input id="rsUrl" placeholder="https://cheatsheetseries.owasp.org/…" style="flex:1;padding:6px 10px"/><button class="pv-btn" id="rsRead">Open</button></div>
+          <div style="display:flex;gap:6px;margin-bottom:10px"><input id="rsQuery" placeholder="Search CWE / CAPEC / ATT&amp;CK / OWASP / payloads / CVE…" style="flex:1;padding:6px 10px"/><button class="pv-btn" id="rsSearch">Search</button></div>
+          <div id="rsPage" style="font-size:12px;color:var(--txt2)">Pages the agent reads also open here.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── LEARNING PAGE ───────────────────────────────── -->
+    <div class="page-view" id="view-learning">
+      <div class="pv-header">
+        <div><div class="pv-title">Learning</div><div class="pv-sub">Mastery per domain, knowledge gaps, lessons — educational only, no security authority</div></div>
+        <div style="display:flex;gap:8px">
+          <button class="pv-btn ghost" onclick="loadLearning()">Refresh</button>
+          <button id="learn-assess-btn" class="pv-btn primary" onclick="runLearningAssessment()">Run self-assessment</button>
+        </div>
+      </div>
+      <div class="pv-body">
+        <div id="learning-loading" class="pv-loading"><div class="pv-spinner"></div> Loading learning state…</div>
+        <div id="learning-content" style="display:none"><div id="learning-body"></div></div>
+      </div>
+    </div>
+
+    <!-- ── WORKSPACE PAGE ──────────────────────────────── -->
+    <div class="page-view" id="view-workspace">
+      <div class="pv-header">
+        <div><div class="pv-title">Workspace</div><div class="pv-sub">Research environment management</div></div>
+        <div class="pv-actions" style="margin:0">
+          <button class="pv-btn primary" onclick="showCreateWorkspace()">+ New</button>
+          <button class="pv-btn ghost" onclick="loadWorkspaces()">Refresh</button>
+        </div>
+      </div>
+      <div class="pv-body">
+        <div id="ws-loading" class="pv-loading"><div class="pv-spinner"></div> Loading workspaces…</div>
+        <div id="ws-content" style="display:none">
+          <div class="ws-cards" id="ws-cards"></div>
+          <div id="ws-create-form" style="display:none;margin-top:16px">
+            <div class="pv-card">
+              <div class="pv-form-row"><label class="pv-form-lbl">Workspace Name</label>
+                <input id="ws-new-name" class="pv-form-input" placeholder="e.g. Target Research" style="max-width:280px"/></div>
+              <div class="pv-form-row"><label class="pv-form-lbl" for="ws-new-scope">Scope — in-scope hosts (required unless the name is itself a hostname or IP)</label>
+                <input id="ws-new-scope" class="pv-form-input" placeholder="in-scope hosts, comma separated — e.g. app.example.com, *.example.com" style="max-width:420px"/></div>
+              <div id="ws-create-msg" style="display:none;color:#e06c6c;font-size:12px;margin:4px 0"></div>
+              <div style="display:flex;gap:8px">
+                <button class="pv-btn primary" onclick="createWorkspace()">Create</button>
+                <button class="pv-btn ghost" onclick="document.getElementById('ws-create-form').style.display='none'">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PROGRAM MODE PAGE ───────────────────────────── -->
+    <div class="page-view" id="view-program">
+      <div class="pv-header">
+        <div><div class="pv-title">Program Mode</div><div class="pv-sub">Autonomous agent — policy-constrained execution</div></div>
+      </div>
+      <div class="pv-body">
+        <div class="pv-card" style="border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.05)">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span style="font-size:13px;font-weight:600;color:var(--amber)">Policy Gate Active</span>
+          </div>
+          <p style="font-size:12px;color:var(--txt2);line-height:1.6">Program Agent operates under <strong style="color:var(--txt)">ProgramPolicy</strong>. All autonomous actions are scope-checked, capability-gated, and human_verification_required = True before any finding is treated as verified.</p>
+        </div>
+        <div style="margin-top:16px">
+          <div class="pv-form-row"><label class="pv-form-lbl">Active Policy</label>
+            <div style="font-family:var(--f-mono);font-size:11px;color:var(--txt2);background:rgba(0,0,0,.3);padding:10px;border-radius:6px;border:1px solid var(--border)">No program policy loaded. Program policies cannot be configured from this build, so an autonomous run is refused (no default-open path) until a policy is loaded in-process.</div>
+          </div>
+        </div>
+        <div class="pv-card" style="margin-top:16px">
+          <div style="font-size:13px;font-weight:600;margin-bottom:6px">Run Program Task</div>
+          <div style="font-size:12px;color:var(--txt2);line-height:1.5;margin-bottom:10px">
+            Drive a PROGRAM_AGENT run through the one capability-gated dispatcher. A run is
+            refused unless a <strong style="color:var(--txt)">ProgramPolicy</strong> is loaded
+            (no default-open path). No host shell, no external targets — loopback/local only.
+          </div>
+          <div style="display:flex;gap:8px">
+            <input id="program-objective" type="text" placeholder="e.g. record an in-scope program note"
+                   style="flex:1;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--txt);font-size:12px">
+            <button class="pv-btn" onclick="runProgramTask()">Run Program Task</button>
+          </div>
+          <div id="program-run-status" style="display:none;margin-top:10px;font-family:var(--f-mono);font-size:11px;color:var(--txt2);background:rgba(0,0,0,.3);padding:8px 10px;border-radius:6px;border:1px solid var(--border)"></div>
+        </div>
+        <div class="pv-actions" style="margin-top:8px">
+          <button class="pv-btn danger" onclick="doEmergencyStop()">Emergency Stop</button>
+          <button class="pv-btn ghost estop-resume" onclick="doClearStop()" title="Clear Emergency Stop and allow new requests">Resume</button>
+          <span class="pv-badge red estop-ind" role="status" style="display:none;align-self:center">E-Stop engaged</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PLUGINS PAGE ────────────────────────────────── -->
+    <div class="page-view" id="view-plugins">
+      <div class="pv-header">
+        <div><div class="pv-title">Plugins</div><div class="pv-sub">Plugin registry and activation</div></div>
+        <button class="pv-btn ghost" onclick="loadPlugins()">Refresh</button>
+      </div>
+      <div class="pv-body">
+        <div id="plugins-loading" class="pv-loading"><div class="pv-spinner"></div> Loading plugins…</div>
+        <div id="plugins-content" style="display:none"><div id="plugins-body"></div></div>
+      </div>
+    </div>
+
+    <!-- ── SETTINGS PAGE ───────────────────────────────── -->
+    <div class="page-view" id="view-settings">
+      <div class="pv-header">
+        <div><div class="pv-title">Settings</div><div class="pv-sub">AI runtime, workspace, and application configuration</div></div>
+      </div>
+      <div class="pv-body">
+        <div style="max-width:560px">
+          <div style="font-size:13px;font-weight:600;color:var(--txt);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)">RAVEN AI System</div>
+          <div id="settings-ai-audit" style="margin-bottom:20px">
+            <div class="pv-loading"><div class="pv-spinner"></div> Loading AI status…</div>
+          </div>
+          <div style="font-size:12px;font-weight:600;color:var(--txt2);margin:4px 0 10px">Claude (Anthropic API)</div>
+          <div class="pv-form-hint" style="margin-bottom:10px">With a key saved, <b>Claude Opus 5.5</b> answers AI Chat and runs the Agent page. The key is stored <b>encrypted</b> in RAVEN's data folder and is never shown again; usage is billed to your Anthropic account. Every target request or command the agent proposes still waits for your Approve.</div>
+          <div id="claude-status" class="pv-form-hint" style="margin-bottom:10px">Loading…</div>
+          <div class="pv-form-row">
+            <label class="pv-form-lbl">Anthropic API key</label>
+            <input id="claude-key" type="password" class="pv-form-input" autocomplete="off" spellcheck="false" placeholder="sk-ant-…"/>
+          </div>
+          <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+            <button class="pv-btn primary" id="claude-save">Save &amp; test</button>
+            <button class="pv-btn ghost" id="claude-test">Test connection</button>
+            <button class="pv-btn danger" id="claude-remove">Remove key</button>
+          </div>
+          <div class="pv-form-row" style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" id="claude-enabled"/> Use Claude</label>
+            <label style="display:flex;align-items:center;gap:6px">Budget per agent run $ <input id="claude-budget" type="number" min="0.1" max="50" step="0.5" class="pv-form-input" style="width:80px"/></label>
+            <label style="display:flex;align-items:center;gap:6px">Max turns <input id="claude-turns" type="number" min="1" max="200" step="1" class="pv-form-input" style="width:70px"/></label>
+            <button class="pv-btn ghost" id="claude-opts">Save options</button>
+          </div>
+          <div id="claude-msg" class="pv-form-hint" style="margin-bottom:22px"></div>
+          <div style="font-size:12px;font-weight:600;color:var(--txt2);margin:4px 0 10px">RAVEN Native (first-party)</div>
+          <div class="pv-form-hint" style="margin-bottom:12px">RAVEN's <b>own</b> from-scratch generative model. Runs fully local — <b>no network, no Ollama</b>. The current checkpoint is an <b>experimental bootstrap</b>: it memorizes its small training curriculum and is <b>not a capable assistant yet</b>. Honest status only.</div>
+          <div id="native-active" class="pv-form-hint" style="margin-bottom:10px"></div>
+          <div class="pv-form-row">
+            <label class="pv-form-lbl">Native checkpoint</label>
+            <select id="set-native-model" class="pv-form-select"><option value="">(none selected — native chat unavailable)</option></select>
+            <div class="pv-form-hint">Selecting a checkpoint loads it locally and routes chat through RAVEN's own inference. Weak/degenerate output is expected at this maturity — it is labeled honestly, never presented as capable.</div>
+          </div>
+          <div style="display:flex;gap:8px;margin-bottom:22px">
+            <button class="pv-btn primary" onclick="selectNative()">Select / Activate</button>
+            <button class="pv-btn ghost" onclick="deselectNative()">Deselect</button>
+          </div>
+          <div style="font-size:12px;font-weight:600;color:var(--txt2);margin:4px 0 10px">Optional External Provider (third-party)</div>
+          <div class="pv-form-hint" style="margin-bottom:12px">RAVEN ships <b>no native generative model</b>. Chat is only available if you opt into an optional third-party provider (Ollama). It is <b>OFF by default</b>, is never contacted unless enabled, and is <b>not part of core RAVEN AI</b>.</div>
+          <div class="pv-form-row">
+            <label class="pv-form-lbl" style="display:flex;align-items:center;gap:8px;cursor:pointer">
+              <input type="checkbox" id="set-enable-llm"/>
+              Enable optional external provider (Ollama · third-party)
+            </label>
+            <div class="pv-form-hint">When off, RAVEN makes no connection to Ollama and chat reports "native generative model not available" honestly.</div>
+          </div>
+          <div class="pv-form-row">
+            <label class="pv-form-lbl">External model name (Ollama)</label>
+            <input id="set-model" class="pv-form-input" placeholder="auto — first available in Ollama"/>
+            <div class="pv-form-hint">Only used when the optional provider is enabled. Leave empty to auto-select the first available Ollama model, or pin one (e.g. llama3.2:latest). Not a RAVEN model.</div>
+          </div>
+          <div class="pv-form-row">
+            <label class="pv-form-lbl">Ollama URL (third-party endpoint)</label>
+            <input id="set-ollama-url" class="pv-form-input" placeholder="http://localhost:11434"/>
+            <div class="pv-form-hint">Endpoint of the external Ollama inference server. Only contacted when the optional provider is enabled.</div>
+          </div>
+          <div class="pv-form-row">
+            <label class="pv-form-lbl">Preferred Language</label>
+            <select id="set-lang" class="pv-form-select">
+              <option value="">Auto-detect</option>
+              <option value="en">English</option>
+              <option value="ar">Arabic</option>
+            </select>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:4px">
+            <button class="pv-btn primary" onclick="saveSettings()">Save Settings</button>
+            <button class="pv-btn ghost" onclick="loadSettings()">Reset</button>
+          </div>
+          <div id="settings-status" style="font-size:12px;margin-top:10px"></div>
+        </div>
+      </div>
+    </div>
+
+<!-- RIGHT PANEL -->
+    <div class="right-panel">
+
+      <!-- Active Task -->
+      <div class="rp-block">
+        <div class="rp-hdr">
+          <div class="rp-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polyline points="12 6 12 12 16 14"/></svg>
+            Active Task
+          </div>
+          <div class="rp-acts">
+            <button class="btn-new-task" disabled aria-disabled="true" title="Task creation is not implemented">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              New Task
+            </button>
+            <button class="btn-gear" onclick="navigateTo('settings')" title="Open Settings">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="no-task">
+          <div class="no-task-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div class="no-task-lbl">No active task</div>
+          <div class="no-task-sub">Start a new research task, recon job,<br>or let me help you with something.</div>
+        </div>
+        <div class="quick-grid">
+          <div class="quick-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+            <span>Recon</span>
+          </div>
+          <div class="quick-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12h4l3-8 4 16 3-8h2"/></svg>
+            <span>Analyze</span>
+          </div>
+          <div class="quick-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            <span>Script</span>
+          </div>
+          <div class="quick-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <span>Report</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- System Status -->
+      <div class="rp-block">
+        <div class="sys-hdr">
+          <div class="rp-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            System Status
+          </div>
+          <div class="sys-badge" id="sysBadge"><div class="sys-dot"></div><span id="sysBadgeTxt">Loading…</span></div>
+        </div>
+        <div class="sys-rows">
+          <div class="sys-row">
+            <div class="sys-row-l">
+              <div class="sys-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8" opacity=".35"/></svg></div>
+              <span class="sys-lbl">AI Model</span>
+            </div>
+            <div class="sys-val"><span id="aiModelVal">Checking…</span><div class="sdot sdot-g" id="aiModelDot"></div></div>
+          </div>
+          <div class="sys-row">
+            <div class="sys-row-l">
+              <div class="sys-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M2 12h20"/></svg></div>
+              <span class="sys-lbl">Browser</span>
+            </div>
+            <div class="sys-val">Checking…<div class="sdot"></div></div>
+          </div>
+          <div class="sys-row">
+            <div class="sys-row-l">
+              <div class="sys-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 2l4 4-4 4M7 22l-4-4 4-4M21 6H8a4 4 0 00-4 4"/></svg></div>
+              <span class="sys-lbl">Proxy</span>
+            </div>
+            <div class="sys-val">Checking…<div class="sdot"></div></div>
+          </div>
+          <div class="sys-row">
+            <div class="sys-row-l">
+              <div class="sys-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9l3 3-3 3"/></svg></div>
+              <span class="sys-lbl">Terminal</span>
+            </div>
+            <div class="sys-val">Checking…<div class="sdot"></div></div>
+          </div>
+          <div class="sys-row">
+            <div class="sys-row-l">
+              <div class="sys-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></div>
+              <span class="sys-lbl">Workspace</span>
+            </div>
+            <div class="sys-val">Checking…<div class="sdot"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resource Usage -->
+      <div class="rp-block">
+        <div class="rp-title" style="margin-bottom:12px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="2"/><path d="M6 16V8M10 16v-4M14 16v-6M18 16V4"/></svg>
+          Resource Usage
+        </div>
+        <div class="res-rows">
+          <div class="res-row">
+            <div class="res-lbl"><span class="res-name">CPU</span><span class="res-val" id="rCPU">—</span></div>
+            <div class="res-track"><div class="res-fill fill-bl" id="rCPUBar" style="width:0%"></div></div>
+          </div>
+          <div class="res-row">
+            <div class="res-lbl"><span class="res-name">Memory</span><span class="res-val" id="rMem">—</span></div>
+            <div class="res-track"><div class="res-fill fill-or" id="rMemBar" style="width:0%"></div></div>
+          </div>
+          <div class="res-row">
+            <div class="res-lbl"><span class="res-name">Disk</span><span class="res-val" id="rDisk">—</span></div>
+            <div class="res-track"><div class="res-fill fill-gn" id="rDiskBar" style="width:0%"></div></div>
+          </div>
+          <div class="res-row">
+            <div class="res-lbl"><span class="res-name">Network</span><span class="res-val" id="rNet">—</span></div>
+            <div class="res-track"><div class="res-fill fill-pk" id="rNetBar" style="width:0%"></div></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /right-panel -->
+
+  </div><!-- /main-area -->
+
+  <!-- STATUS BAR -->
+  <div class="statusbar">
+    <div class="sb-item">
+      <div class="sb-dot sdot-g"></div>
+      <span class="sb-ready" id="sbOs">RAVEN OS Loading…</span>
+    </div>
+    <div class="sb-item">Agent: <span id="sbAgent" style="color:var(--txt2)">Idle</span></div>
+    <div class="sb-item">Proxy: <span id="sbProxy" style="color:var(--txt2)">—</span></div>
+    <div class="sb-item">WS: <span id="sbWs" style="color:var(--txt2)">—</span></div>
+    <div class="sb-item" id="sbTime">--:--</div>
+  </div>
+
+</div><!-- /shell -->
+
+<script>
+(function(){
+'use strict';
+
+
+/* Clock */
+(function tick(){
+  const n = new Date();
+  const pad = v => String(v).padStart(2,'0');
+  document.getElementById('sbTime').textContent =
+    pad(n.getHours()) + ':' + pad(n.getMinutes()) + ':' + pad(n.getSeconds());
+  setTimeout(tick, 1000);
+})();
+
+/* Resource usage — real /api/v7/system/resources */
+function refreshResources(){
+  var token=(window.RAVEN_TOKEN||'');
+  if(!token) return;
+  fetch('/api/v7/system/resources',{headers:{'X-RAVEN-Token':token}})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.available===false){
+        ['CPU','Mem','Disk','Net'].forEach(function(k){
+          var v=document.getElementById('r'+k),b=document.getElementById('r'+k+'Bar');
+          if(v)v.textContent='—'; if(b)b.style.width='0%';
+        });
+        return;
+      }
+      var cpu=d.cpu_percent||0,mem=d.memory_percent||0,disk=d.disk_percent||0;
+      document.getElementById('rCPU').textContent    = Math.round(cpu)+'%';
+      document.getElementById('rCPUBar').style.width = cpu+'%';
+      document.getElementById('rMem').textContent    = Math.round(mem)+'%';
+      document.getElementById('rMemBar').style.width = mem+'%';
+      document.getElementById('rDisk').textContent   = Math.round(disk)+'%';
+      document.getElementById('rDiskBar').style.width= disk+'%';
+      var nb=d.net_bytes_sent_ps||0;
+      var ns=nb>1048576?(nb/1048576).toFixed(1)+' MB/s':nb>1024?(nb/1024).toFixed(0)+' KB/s':'0 KB/s';
+      document.getElementById('rNet').textContent    = ns;
+      document.getElementById('rNetBar').style.width = Math.min(95,nb/10000)+'%';
+    })
+    .catch(function(){});
+}
+refreshResources();
+setInterval(refreshResources, 6000);
+
+/* ── SPA Router ─────────────────────────────────────────────────── */
+var _currentView = 'chat';
+function navigateTo(name){
+  _currentView = name;
+  document.querySelectorAll('.nav-item[data-nav]').forEach(function(el){
+    el.classList.toggle('active', el.dataset.nav === name);
+  });
+  // Keep the top tab strip in sync when navigation comes from the sidebar or a
+  // button (previously "Chat" stayed highlighted on every other page).
+  var _tm=(typeof _tabNavMap!=='undefined'&&_tabNavMap)||{};
+  document.querySelectorAll('.tab-btn[data-tab]').forEach(function(b){
+    b.classList.toggle('active', (_tm[b.dataset.tab]||b.dataset.tab) === name);
+  });
+  // #view-chat uses class 'content' (no display:none default), handle explicitly
+  var chatEl=document.getElementById('view-chat');
+  if(chatEl) chatEl.style.display = name==='chat' ? '' : 'none';
+  // .page-view has display:none by default in CSS — must set 'flex' to show
+  document.querySelectorAll('.page-view').forEach(function(el){
+    el.style.display = el.id === 'view-'+name ? 'flex' : 'none';
+  });
+  var loaders={tasks:loadTasks,traffic:loadTraffic,evidence:loadEvidence,
+    knowledge:loadKnowledge,learning:loadLearning,ravensec:loadRavenSec,workspace:loadWorkspaces,plugins:loadPlugins,
+    settings:loadSettings,terminal:initTerminal,recon:loadRecon};
+  if(loaders[name]) try{loaders[name]();}catch(e){}
+  // Both pages carry the Emergency Stop + Resume controls: show the real stop state.
+  if(name==='tasks'||name==='program') try{refreshStopIndicator();}catch(e){}
+}
+
+document.querySelectorAll('.nav-item[data-nav]').forEach(function(el){
+  el.addEventListener('click', function(){ navigateTo(el.dataset.nav); });
+});
+
+/* Top tabs → navigation */
+var _tabNavMap = {chat:'chat',recon:'recon',traffic:'traffic',evidence:'evidence',knowledge:'knowledge'};
+document.querySelectorAll('.tab-btn[data-tab]').forEach(function(el){
+  el.addEventListener('click', function(){
+    // Honest: a DISABLED tab (Research/Tools have no backing view) does nothing —
+    // no dead click that blanks the content area.
+    if(el.disabled||el.getAttribute('aria-disabled')==='true') return;
+    document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+    el.classList.add('active');
+    navigateTo(_tabNavMap[el.dataset.tab]||el.dataset.tab);
+  });
+});
+
+/* Quick action buttons */
+document.querySelectorAll('.quick-btn').forEach(function(el){
+  var qmap={Recon:'recon',Analyze:'evidence',Script:'terminal',Report:'knowledge'};
+  var lbl=el.querySelector('span');
+  if(lbl&&qmap[lbl.textContent]){
+    el.style.cursor='pointer';
+    el.addEventListener('click',function(){navigateTo(qmap[lbl.textContent]);});
+  }
+});
+
+/* System status rows — real /api/v7/status. Honest status vocabulary (READY/
+   UNAVAILABLE) driven by the contract shapes (raven/api/contracts.py), NOT static
+   strings. Reads the NESTED truth the server actually sends:
+     - proxy.active  (NOT a flat proxy_active — audit D4)
+     - terminal.shells{powershell,bash,cmd} as a dict (NOT available_shells — D3) */
+function refreshSystemStatus(){
+  var token=(window.RAVEN_TOKEN||'');
+  if(!token){ _setOsStatus('UNAVAILABLE'); return; }
+  fetch('/api/v7/status',{headers:{'X-RAVEN-Token':token}})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      var ws=d.workspace||{};
+      var proxy=d.proxy||{};
+      var shellsObj=(d.terminal&&d.terminal.shells)||{};
+      var shells=Object.keys(shellsObj).filter(function(k){return shellsObj[k];});
+      // Browser = the hardened HTTP research client (SenderService). It can only send
+      // once a workspace with a CanonicalService is bound, so drive it from the real
+      // nested proxy.active signal — NOT the old unconditional literal ('READY',true)
+      // that was green even with no subsystem behind it (sweep B §10).
+      _setSysRow('Browser',proxy.active?'READY':'UNAVAILABLE',!!proxy.active);
+      // RAVEN runs NO intercepting proxy (nothing binds a port). Report the
+      // controlled-sender plane honestly; the fabricated port chip is removed.
+      _setSysRow('Proxy',proxy.active?'Controlled sender (no proxy)':'UNAVAILABLE',!!proxy.active);
+      _setSysRow('Terminal',shells.length?shells.join(', '):'UNAVAILABLE',shells.length>0);
+      _setSysRow('Workspace',ws.name||'Default',!!ws.active);
+      _setOsStatus('READY');
+      _setChrome(ws.name,!!proxy.active);
+    })
+    .catch(function(){ _setOsStatus('UNAVAILABLE'); });
+}
+/* Honest chips on the formerly-static chrome (badge + status bar + ws selector). */
+function _setOsStatus(state){
+  var b=document.getElementById('sysBadgeTxt'); if(b) b.textContent=(state==='READY'?'Ready':state);
+  var os=document.getElementById('sbOs'); if(os) os.textContent='RAVEN OS '+(state==='READY'?'Ready':state);
+}
+function _setChrome(wsName,proxyActive){
+  var w=wsName||'Default';
+  var sbw=document.getElementById('sbWs'); if(sbw) sbw.textContent=w;
+  var sel=document.getElementById('wsSelLabel'); if(sel) sel.textContent='Workspace: '+w;
+  // No bound proxy/port exists — show honest on/off for the controlled-sender plane,
+  // never a fabricated port number (sweep B §10).
+  var sbp=document.getElementById('sbProxy'); if(sbp) sbp.textContent=proxyActive?'on':'off';
+}
+function _setSysRow(label,val,ok){
+  document.querySelectorAll('.sys-row').forEach(function(row){
+    var lb=row.querySelector('.sys-lbl');
+    if(!lb||lb.textContent.trim()!==label) return;
+    var ve=row.querySelector('.sys-val');
+    if(!ve) return;
+    var dot=ve.querySelector('.sdot');
+    Array.from(ve.childNodes).forEach(function(n){if(n.nodeType===3)n.remove();});
+    ve.insertBefore(document.createTextNode(val),ve.firstChild);
+    if(dot) dot.className=ok?'sdot sdot-g':'sdot';
+  });
+}
+setTimeout(refreshSystemStatus, 1500);
+setInterval(refreshSystemStatus, 30000);
+
+// init: show chat, hide all other page views
+navigateTo('chat');
+
+/* ── AI Status (runtime-derived) ────────────────────────────────── */
+function refreshAiStatus(){
+  var token = (window.RAVEN_TOKEN || '');
+  if(!token) return;
+  fetch('/api/ai/status', {headers:{'X-RAVEN-Token':token}})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      var el = document.getElementById('aiModelVal');
+      var dot = document.getElementById('aiModelDot');
+      if(!el) return;
+      // Honest boundary (Wave 13): RAVEN ships NO native generative model. Show the
+      // honest status text; only light the green dot when an opt-in third-party
+      // external provider is actually READY. DISABLED is the truthful default.
+      if(!d.configured){
+        el.textContent = d.display || 'No native generative model';
+        dot.className = 'sdot'; return;
+      }
+      el.textContent = d.display || (d.model || 'Optional external provider');
+      dot.className = (d.status === 'READY' || d.available) ? 'sdot sdot-g' : 'sdot';
+    })
+    .catch(function(){ /* keep "Checking…" */ });
+}
+setTimeout(refreshAiStatus, 800);
+setInterval(refreshAiStatus, 30000);
+
+/* ── Chat conversation ───────────────────────────────────────────── */
+var inp = document.getElementById('chatInput');
+var snd = document.getElementById('chatSend');
+var msgsEl = document.getElementById('chatMessages');
+var _chatSending = false;
+var _chatSessionId = 'session-' + Math.random().toString(36).slice(2,10);
+
+function _showMessages(){
+  msgsEl.style.display = 'flex';
+  // dim hero layers so conversation is readable
+  var hw = document.querySelector('.hero-artwork');
+  var ht = document.querySelector('.hero-text');
+  var wf = document.querySelector('.workflow-strip');
+  if(hw) hw.style.opacity = '0.08';
+  if(ht) ht.style.display = 'none';
+  if(wf) wf.style.opacity = '0.12';
+}
+
+function _appendMsg(role, content, state){
+  var row = document.createElement('div');
+  row.className = 'msg-row ' + role;
+  var lbl = document.createElement('div');
+  lbl.className = 'msg-label';
+  lbl.textContent = role === 'user' ? 'You' : 'RAVEN';
+  var bub = document.createElement('div');
+  bub.className = 'msg-bubble' + (state ? ' ' + state : '');
+  bub.setAttribute('dir', 'auto');
+  bub.textContent = content;
+  row.appendChild(lbl);
+  row.appendChild(bub);
+  msgsEl.appendChild(row);
+  msgsEl.scrollTop = msgsEl.scrollHeight;
+  return bub;
+}
+
+/* Render a model reply safely: ``` fences become code boxes (with Copy), everything
+   else is plain text (textContent — never HTML), with automatic RTL for Arabic. */
+function _renderAnswer(el, text){
+  el.textContent = '';
+  var t = String(text || '');
+  if((t.match(/```/g) || []).length % 2) t += '\n```';   // close a cut-off fence
+  var parts = t.split(/```([\w+#.-]*)[ \t]*\n?([\s\S]*?)```/);
+  for(var i = 0; i < parts.length; i += 3){
+    var prose = (parts[i] || '').replace(/^\n+|\n+$/g, '');
+    if(prose){
+      var d = document.createElement('div');
+      d.setAttribute('dir', 'auto');
+      d.textContent = prose;
+      el.appendChild(d);
+    }
+    if(i + 2 < parts.length){
+      var pre = document.createElement('pre');
+      pre.className = 'msg-code';
+      var code = document.createElement('code');
+      code.textContent = parts[i + 2].replace(/\n+$/, '');
+      pre.appendChild(code);
+      var b = document.createElement('button');
+      b.className = 'msg-copy';
+      b.type = 'button';
+      b.textContent = 'Copy';
+      b.addEventListener('click', (function(c, btn){ return function(){
+        try{ navigator.clipboard.writeText(c); btn.textContent = 'Copied'; }catch(e){ btn.textContent = 'Select & copy'; }
+      }; })(code.textContent, b));
+      pre.appendChild(b);
+      el.appendChild(pre);
+    }
+  }
+}
+
+function _setAgent(txt, color){
+  var ag = document.getElementById('sbAgent');
+  if(ag){ ag.textContent = txt; ag.style.color = color || 'var(--txt2)'; }
+}
+
+function sendMsg(){
+  if(_chatSending) return;
+  var v = inp.value.trim();
+  if(!v) return;
+  _chatSending = true;
+
+  // 1. Capture message BEFORE clearing composer
+  var userText = v;
+  inp.value = '';
+
+  // 2. Show conversation area and append user message immediately
+  _showMessages();
+  _appendMsg('user', userText);
+
+  // 3. Show pending RAVEN bubble
+  var thinkBub = _appendMsg('assistant', '', 'thinking');
+  thinkBub.innerHTML = 'RAVEN is thinking <span class="thinking-dot">●</span><span class="thinking-dot">●</span><span class="thinking-dot">●</span> <span class="think-secs"></span>';
+  var _t0 = Date.now();
+  var _tick = setInterval(function(){
+    var s = thinkBub.querySelector('.think-secs');
+    if(s) s.textContent = Math.round((Date.now() - _t0) / 1000) + 's (local CPU model)';
+  }, 1000);
+  _setAgent('Processing…', 'var(--amber)');
+
+  // 4. Call actual /api/chat endpoint
+  var token = (window.RAVEN_TOKEN || '');
+  fetch('/api/chat', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-RAVEN-Token': token,
+    },
+    body: JSON.stringify({ message: userText, session_id: _chatSessionId }),
+  })
+  .then(function(r){ return r.json().then(function(d){ return {ok:r.ok, status:r.status, data:d}; }); })
+  .then(function(res){
+    clearInterval(_tick);
+    thinkBub.classList.remove('thinking');
+    thinkBub.innerHTML = '';
+    if(res.ok && res.data.response){
+      _renderAnswer(thinkBub, res.data.response);
+      var meta = document.createElement('div');
+      meta.className = 'msg-meta';
+      meta.textContent = (res.data.provider === 'raven_sec' ? 'RAVEN-Sec' : (res.data.model || 'model'))
+        + ' · ' + ((Date.now() - _t0) / 1000).toFixed(1) + 's';
+      thinkBub.appendChild(meta);
+      // Native (first-party) turns carry an honest maturity + advisory from the
+      // backend (api_chat). Surface it inline so a bootstrap generation is never
+      // presented as a capable/verified answer — never hidden, never restated.
+      if(res.data.maturity){
+        var adv = document.createElement('div');
+        adv.className = 'native-turn-advisory';
+        adv.style.cssText = 'margin-top:6px;padding-top:5px;border-top:1px solid rgba(255,255,255,.08);font-size:11px;font-style:italic;color:var(--muted,#9aa0a6)';
+        adv.textContent = '⚠ ' + res.data.maturity + ' — ' + (res.data.advisory_note || 'advisory only; requires human verification');
+        thinkBub.appendChild(adv);
+      }
+      _setAgent('Idle');
+    } else {
+      thinkBub.classList.add('error');
+      var errMsg = (res.data && res.data.error) || 'Local AI did not respond.';
+      thinkBub.textContent = '⚠ ' + errMsg;
+      _setAgent('Error', 'var(--red)');
+    }
+    msgsEl.scrollTop = msgsEl.scrollHeight;
+  })
+  .catch(function(err){
+    clearInterval(_tick);
+    thinkBub.classList.remove('thinking');
+    thinkBub.classList.add('error');
+    thinkBub.textContent = '⚠ Unable to reach the local AI runtime. Check that the server is running.';
+    _setAgent('Offline', 'var(--red)');
+  })
+  .finally(function(){
+    _chatSending = false;
+  });
+}
+
+inp.addEventListener('keydown', function(e){
+  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendMsg(); }
+});
+snd.addEventListener('click', sendMsg);
+
+/* pywebview bridge (available when running as packaged app) */
+document.getElementById('btnClose').addEventListener('click', function(){
+  if(window.pywebview && window.pywebview.api){
+    try{ window.pywebview.api.close_window(); } catch(e){}
+  }
+});
+
+
+/* ── API helper ──────────────────────────────────────────────────── */
+var _RAV={
+  get:function(p){var t=(window.RAVEN_TOKEN||'');return fetch(p,{headers:{'X-RAVEN-Token':t}}).then(function(r){return r.json();});},
+  post:function(p,b){var t=(window.RAVEN_TOKEN||'');return fetch(p,{method:'POST',headers:{'Content-Type':'application/json','X-RAVEN-Token':t},body:JSON.stringify(b)}).then(function(r){return r.json();});}
+};
+
+/* Cell values are DATA, never markup: rows carry target-derived strings (observed
+   URLs, finding titles, recon progress text) and this window holds the API token,
+   so every cell is HTML-escaped after truncation (no half-cut entities). */
+function _cellText(v){return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function _tableFrom(cols,rows,empty){
+  if(!rows||!rows.length) return '<div class="pv-empty" style="padding:40px 0"><p>'+_cellText(empty)+'</p></div>';
+  var h='<table class="pv-table"><thead><tr>'+cols.map(function(c){return'<th>'+_cellText(c)+'</th>';}).join('')+'</tr></thead><tbody>';
+  rows.forEach(function(r){h+='<tr>'+cols.map(function(c){return'<td>'+(r[c]!=null?_cellText(String(r[c]).slice(0,80)):'—')+'</td>';}).join('')+'</tr>';});
+  return h+'</tbody></table>';
+}
+function _setPage(lid,cid,bid,html){
+  var l=document.getElementById(lid),c=document.getElementById(cid),b=document.getElementById(bid);
+  if(!l||!c||!b) return; l.style.display='none'; c.style.display=''; b.innerHTML=html;
+}
+
+/* Tasks */
+function loadTasks(){
+  _RAV.get('/api/v7/tasks').then(function(d){
+    // Durable tasks of record — live RAVEN_AGENT / PROGRAM_AGENT runs create these in
+    // the SAME registry this endpoint reads, so the page is no longer permanently
+    // "No active tasks." The row shape is {task_id,title,objective,status,created_at}:
+    // render `title` (the old code read the nonexistent `name`/`type`, so every row
+    // said "Task"), and created_at is ALREADY epoch-MILLISECONDS — multiplying it by
+    // 1000 (the old bug) rendered ~50,000 years in the future (sweep A §2).
+    var taskRows=(d.tasks||[]).map(function(t){
+      var ts=t.created_at?new Date(t.created_at):null;
+      return {id:(t.task_id||t.id||'').slice(0,8),
+              title:t.title||t.objective||'Task',
+              status:t.status||'unknown',
+              started:(ts&&!isNaN(ts.getTime()))?ts.toLocaleTimeString():'—'};
+    });
+    // Live scheduler recon jobs (api_tasks_list attaches SCHEDULER.list() as
+    // recon_jobs). Previously dropped here, so a running collection never showed on
+    // Tasks. Same shape the Recon page renders.
+    var jobRows=(d.recon_jobs||[]).map(function(j){
+      var prog=(j.progress&&j.progress.length)?j.progress[j.progress.length-1]:'';
+      return {id:String(j.id||'').slice(0,8),kind:j.kind||'—',workspace:j.workspace||'—',
+              state:j.state||'—',requests:(j.requests!=null?j.requests:0),progress:prog||'—'};
+    });
+    var html=_tableFrom(['id','title','status','started'],taskRows,'No durable tasks yet. Run an Agent or Program task.')
+      +'<div style="font-size:12px;font-weight:600;color:var(--txt2);margin:16px 0 6px">Recon jobs</div>'
+      +_tableFrom(['id','kind','workspace','state','requests','progress'],jobRows,'No recon jobs. Start a collection from the Recon page.');
+    _setPage('tasks-loading','tasks-content','tasks-body',html);
+  }).catch(function(){_setPage('tasks-loading','tasks-content','tasks-body','<div class="pv-empty"><p>Could not load tasks.</p></div>');});
+}
+
+/* Live Agent — start a harmless deterministic task and show its status + activity.
+   Goes through POST /api/v7/agent/run -> the one AgentExecutor -> capability-gated
+   ToolDispatcher -> a REAL knowledge.store (no shell, no network). */
+function runAgentTask(){
+  var el=document.getElementById('agent-objective');
+  var st=document.getElementById('agent-run-status');
+  if(!el||!st) return;
+  var objective=(el.value||'').trim();
+  if(!objective){el.focus();return;}
+  st.style.display=''; st.textContent='Running agent task…';
+  _RAV.post('/api/v7/agent/run',{objective:objective}).then(function(d){
+    if(d&&d.error){st.textContent='Error: '+d.error;return;}
+    st.textContent='task '+(d.task_id||'').slice(0,8)+' ['+(d.origin||'')+'] -> '+(d.status||'')+(d.failure?(' ('+d.failure+')'):'');
+    el.value=''; loadTasks();
+    if(d.task_id){
+      _RAV.get('/api/v7/agent/run/'+d.task_id).then(function(r){
+        var obs=(r&&r.observations)||[];
+        if(obs.length){var o=obs[0];
+          st.textContent+='  |  '+(o.tool_id||'')+' -> '+(o.status||'')+' ('+(o.capability_decision||'')+')';}
+      }).catch(function(){});
+    }
+  }).catch(function(){st.textContent='Could not start agent task.';});
+}
+
+/* Live Program Agent — PROGRAM_AGENT run; surfaces the ProgramPolicy requirement
+   (a 409 no_program_policy is reported honestly, never a silent allow). */
+function runProgramTask(){
+  var el=document.getElementById('program-objective');
+  var st=document.getElementById('program-run-status');
+  if(!el||!st) return;
+  var objective=(el.value||'').trim();
+  if(!objective){el.focus();return;}
+  st.style.display=''; st.textContent='Running program task…';
+  _RAV.post('/api/v7/program/run',{objective:objective}).then(function(d){
+    if(d&&d.status==='no_program_policy'){
+      st.textContent='Refused: no ProgramPolicy loaded — the program agent will not run autonomously (no default-open path).';
+      return;
+    }
+    if(d&&d.error){st.textContent='Error: '+d.error;return;}
+    st.textContent='task '+(d.task_id||'').slice(0,8)+' ['+(d.origin||'')+'] -> '+(d.status||'')+(d.failure?(' ('+d.failure+')'):'');
+    el.value=''; loadTasks();
+  }).catch(function(){st.textContent='Could not start program task.';});
+}
+
+/* Traffic — canonical observations projected as TrafficEntry[] under `entries`.
+   These are REAL controlled exchanges emitted by BOTH the Browser page and recon
+   probes (one model); identity_label distinguishes the producer. Metadata only —
+   bodies are never stored server-side (full-body replay lives in Browser history).
+   Timestamps are ISO-8601 strings (new Date(iso)), NOT epoch seconds. */
+function loadTraffic(){
+  _RAV.get('/api/v7/traffic').then(function(d){
+    var rows=(d.entries||[]).slice(0,200).map(function(t){
+      var ts=t.timestamp?new Date(t.timestamp):null;
+      var when=(ts&&!isNaN(ts.getTime()))?ts.toLocaleTimeString():(t.timestamp||'—');
+      return{method:t.method||'GET',url:(t.url||'').slice(0,60),status:(t.status!=null?t.status:'—'),identity:t.identity_label||'—',time:when};
+    });
+    _setPage('traffic-loading','traffic-content','traffic-body',_tableFrom(['method','url','status','identity','time'],rows,'No captured traffic.'));
+  }).catch(function(){_setPage('traffic-loading','traffic-content','traffic-body','<div class="pv-empty"><p>No traffic captured yet.</p></div>');});
+}
+
+/* Evidence — real projection of the canonical recon.db evidence store:
+   node kind (request/finding/note) + label; every node is advisory (human
+   verification required). */
+function loadEvidence(){
+  _RAV.get('/api/v7/evidence').then(function(d){
+    var rows=(d.nodes||[]).map(function(n){return{id:(n.node_id||'').slice(0,8),type:n.kind||n.type||'—',label:n.label||((n.data&&n.data.title)||n.title)||'—',verified:'Human required'};});
+    _setPage('evidence-loading','evidence-content','evidence-body',_tableFrom(['id','type','label','verified'],rows,'No evidence. human_verification_required=True on all candidates.'));
+  }).catch(function(){_setPage('evidence-loading','evidence-content','evidence-body','<div class="pv-empty"><p>Could not load evidence graph.</p></div>');});
+}
+function addEvidenceNote(){
+  var el=document.getElementById('ev-note-input'); if(!el) return;
+  var summary=(el.value||'').trim(); if(!summary){el.focus();return;}
+  _RAV.post('/api/v7/evidence/note',{summary:summary}).then(function(d){
+    if(d&&d.error){alert('Could not add note: '+d.error);return;}
+    el.value=''; loadEvidence();
+  }).catch(function(){alert('Could not add note.');});
+}
+
+/* Knowledge — dynamic per-workspace store; source (human_authored/ai_derived/
+   imported) and confidence are shown so AI-derived advisory entries are never
+   mistaken for human-verified ground truth. */
+function loadKnowledge(){
+  _RAV.get('/api/v7/knowledge').then(function(d){
+    var rows=(d.entries||[]).map(function(k){return{id:(k.entry_id||'').slice(0,8),title:k.title||'—',type:k.kind||k.content_type||'—',source:k.source||'—',confidence:(k.confidence!=null?k.confidence:'—')};});
+    _setPage('knowledge-loading','knowledge-content','knowledge-body',_tableFrom(['id','title','type','source','confidence'],rows,'No knowledge entries.'));
+  }).catch(function(){_setPage('knowledge-loading','knowledge-content','knowledge-body','<div class="pv-empty"><p>Could not load knowledge base.</p></div>');});
+}
+function addKnowledgeEntry(){
+  var t=document.getElementById('kb-title-input'),b=document.getElementById('kb-body-input');
+  if(!t||!b) return;
+  var title=(t.value||'').trim(),body=(b.value||'').trim();
+  if(!title||!body){(title?b:t).focus();return;}
+  _RAV.post('/api/v7/knowledge',{title:title,body:body,kind:'concept'}).then(function(d){
+    if(d&&d.error){alert('Could not store entry: '+d.error);return;}
+    t.value='';b.value=''; loadKnowledge();
+  }).catch(function(){alert('Could not store entry.');});
+}
+
+/* Learning — live view over raven/learning (GET /api/v7/learning). Mastery comes
+   from RAVEN's synthetic educational exams (self-consistency, NOT generalisation),
+   domains without an exam are shown as NO_EXAM (never a made-up score), and the
+   page states authority NONE. "Run self-assessment" POSTs /api/v7/learning/assess
+   (local, no network; refused while Emergency Stop is engaged). */
+function _learnSection(t){return '<div style="font-size:12px;font-weight:600;color:var(--txt2);margin:18px 0 6px">'+_cellText(t)+'</div>';}
+function _learnPct(v){return (v==null)?'—':Math.round(v*100)+'%';}
+function _renderLearning(d){
+  var assessed=d.assessed_at?new Date(d.assessed_at):null;
+  var doms=d.domains||[];
+  var evaluated=doms.filter(function(x){return x.status==='EVALUATED';}).length;
+  var noExam=d.no_exam_domains||[];
+  var passed=0,total=0;(d.exams||[]).forEach(function(e){passed+=e.n_pass||0;total+=e.n_total||0;});
+  var head='<div style="display:flex;flex-wrap:wrap;gap:18px;font-size:12px;color:var(--txt2);margin-bottom:6px">'
+    +'<span>Last assessment: <b style="color:var(--txt)">'+(assessed&&!isNaN(assessed.getTime())?_cellText(assessed.toLocaleString()):'never')+'</b></span>'
+    +'<span>Domains evaluated: <b style="color:var(--txt)">'+evaluated+' / '+doms.length+'</b></span>'
+    +(total?'<span>Exam items passed: <b style="color:var(--txt)">'+passed+' / '+total+'</b></span>':'')
+    +'<span>Graduation ready: <b style="color:var(--txt)">'+(d.graduation_ready?'yes':'no')+'</b>'
+    +(noExam.length?' ('+noExam.length+' domain(s) have no exam yet)':'')+'</span>'
+    +'<span>Security authority: <b style="color:var(--txt)">'+_cellText(d.authority||'NONE')+'</b></span></div>'
+    +'<div style="font-size:11px;color:var(--txt3,var(--txt2));margin-bottom:8px">'+_cellText(d.note||'')+'</div>';
+  if(d.status==='EMPTY') head+='<div class="pv-empty" style="padding:16px 0"><p>Not assessed yet — click <b>Run self-assessment</b>. It runs locally on synthetic exam fixtures; nothing is sent anywhere.</p></div>';
+  if(d.error) head+='<div style="font-size:12px;color:var(--red);margin:6px 0">'+_cellText(d.error)+'</div>';
+  var domRows=doms.map(function(x){return{domain:x.domain,status:x.status,level:x.mastery_level||'—',accuracy:_learnPct(x.accuracy),exam:x.exam_id||'— (no exam)'};});
+  var gapRows=(d.gaps||[]).map(function(g){return{domain:g.domain,accuracy:_learnPct(g.accuracy),priority:g.priority,description:g.description};});
+  var lessonRows=(d.lessons||[]).map(function(l){return{title:l.title||'—',summary:l.summary||'—',confidence:(l.confidence!=null?l.confidence:'—'),source:l.source||'—'};});
+  var resRows=(d.resources||[]).map(function(r){return{domain:r.domain,title:r.title,approach:r.study_approach};});
+  return head
+    +_learnSection('Mastery by domain')+_tableFrom(['domain','status','level','accuracy','exam'],domRows,'No domains.')
+    +_learnSection('Knowledge gaps (evaluated domains below '+_learnPct(d.threshold)+')')+_tableFrom(['domain','accuracy','priority','description'],gapRows,d.assessed_at?'No gaps among evaluated domains.':'Run a self-assessment to find gaps.')
+    +_learnSection('Lessons in this workspace')+_tableFrom(['title','summary','confidence','source'],lessonRows,'No lessons yet. Lessons are synthesized from research findings and stored in the Knowledge Base.')
+    +_learnSection('Study resources')+_tableFrom(['domain','title','approach'],resRows,'No study resources.');
+}
+function loadLearning(){
+  _RAV.get('/api/v7/learning').then(function(d){
+    _setPage('learning-loading','learning-content','learning-body',_renderLearning(d));
+  }).catch(function(){_setPage('learning-loading','learning-content','learning-body','<div class="pv-empty"><p>Could not load learning state.</p></div>');});
+}
+/* RAVEN-Sec Agent — local cybersecurity + coding model with tools.
+   Everything the model, the sources or a target return is rendered as escaped text;
+   links are only made clickable for http(s) and open in the research browser (trusted)
+   or as plain text. Approve/Deny carries the pending action id so a click can only
+   decide the exact action shown. */
+var _rsRun=null,_rsTimer=null,_rsBound=false,_rsEng='ravensec';
+function _rsBase(){return _rsEng==='claude'?'/api/v7/claude/agent':'/api/v7/ravensec/agent';}
+function _rsLinkify(t){return _cellText(t).replace(/https?:\/\/[^\s<>"')\]]+/g,function(u){return '<a href="#" data-rs-read="'+u+'" style="color:var(--cyan,#22d3ee)">'+u+'</a>';});}
+function _rsPre(t,max){return '<pre style="white-space:pre-wrap;word-break:break-word;margin:6px 0 0;font-size:11.5px;max-height:'+(max||260)+'px;overflow:auto;background:rgba(255,255,255,.03);padding:8px;border-radius:6px">'+_rsLinkify(t)+'</pre>';}
+var _rsSig=null;
+function _rsRenderRun(r){
+  var tl=document.getElementById('rsTimeline');if(!tl)return;
+  // _rsPoll re-renders every 1.5 s while WAITING_APPROVAL. Rebuilding the timeline
+  // each tick wiped the typed deny reason, stole focus and re-enabled a clicked
+  // button. Steps are append-only, so (run, state, step count, pending id, error,
+  // files) identifies what is on screen: skip the rebuild when none of it changed.
+  var sig=JSON.stringify([r.id,r.state,(r.steps||[]).length,r.pending?r.pending.id:null,r.error||null,r.files||[]]);
+  if(sig===_rsSig)return;
+  _rsSig=sig;
+  // If it does rebuild while the SAME action still awaits a decision, carry the
+  // reason the user is typing (value, focus, caret) over to the new input.
+  var oldIn=document.getElementById('rsDenyReason'),keep=null;
+  if(oldIn&&r.pending&&oldIn.getAttribute('data-rs-id')===String(r.pending.id))
+    keep={v:oldIn.value,f:document.activeElement===oldIn,s:oldIn.selectionStart,e:oldIn.selectionEnd};
+  var h='<div style="font-size:12px;color:var(--txt2);margin-bottom:8px">Run '+_cellText(r.id)+' · <b>'+_cellText(r.state)+'</b>'+(r.files&&r.files.length?' · files: '+r.files.map(function(f){return '<a href="#" data-rs-file="'+_cellText(f)+'">'+_cellText(f)+'</a>';}).join(', '):'')+'</div>';
+  h+='<div style="border-left:2px solid var(--border);padding-left:12px">';
+  h+='<div style="margin-bottom:10px"><span class="pv-badge amber">objective</span>'+_rsPre(r.objective,120)+'</div>';
+  (r.steps||[]).forEach(function(s){
+    if(s.type==='action')h+='<div style="margin:10px 0"><span class="pv-badge green">'+_cellText(s.tool)+'</span> <span style="font-size:11px;color:var(--txt2)">'+(s.seconds?_cellText(s.seconds)+' s':'')+'</span>'+_rsPre(s.input,140)+'</div>';
+    else if(s.type==='observation')h+='<details style="margin:4px 0 10px"><summary style="cursor:pointer;font-size:11px;color:var(--txt2)">observation · '+_cellText(s.tool)+'</summary>'+_rsPre(s.text,320)+'</details>';
+    else if(s.type==='decision')h+='<div style="font-size:11px;margin:4px 0;color:'+(s.approved?'var(--green)':'var(--red)')+'">'+(s.approved?'✔ approved':'✖ denied')+(s.reason?' — '+_cellText(s.reason):'')+'</div>';
+    else if(s.type==='answer')h+='<div style="margin:12px 0"><span class="pv-badge green">answer</span>'+_rsPre(s.text,600)+'</div>';
+    // Agent notes (unusable / repeated action skipped) — plain escaped text, no links.
+    else if(s.type==='note'&&s.role==='claude')h+='<div style="margin:10px 0"><span class="pv-badge amber">Claude</span>'+_rsPre(s.text,320)+'</div>';
+    else if(s.type==='note')h+='<div style="font-size:11px;margin:4px 0;color:var(--txt2)">note — '+_cellText(s.text==null?'':s.text)+'</div>';
+  });
+  if(r.pending){var p=r.pending;
+    h+='<div style="margin:12px 0;padding:12px;border:1px solid var(--amber,#f59e0b);border-radius:8px;background:rgba(245,158,11,.06)">'
+      +'<div style="font-weight:600;font-size:12px">Approval needed — '+_cellText(p.tool)+'</div>'+_rsPre(p.input,200)
+      +((p.notes||[]).map(function(n){return '<div style="font-size:11px;color:var(--amber,#f59e0b);margin-top:6px">⚠ '+_cellText(n)+'</div>';}).join(''))
+      +'<div style="display:flex;gap:8px;margin-top:10px"><button class="pv-btn primary" data-rs-act="approve" data-rs-id="'+_cellText(p.id)+'">Approve &amp; run</button>'
+      +'<input id="rsDenyReason" data-rs-id="'+_cellText(p.id)+'" placeholder="reason (optional)" style="flex:1;padding:6px 8px"/><button class="pv-btn danger" data-rs-act="deny" data-rs-id="'+_cellText(p.id)+'">Deny</button></div></div>';}
+  if(r.state==='RUNNING')h+='<div style="font-size:11px;color:var(--txt2);margin-top:8px">'+(r.engine==='claude'?'Claude is working…':'thinking… (CPU model — a step can take 30–90 s)')+'</div>';
+  if(r.usage){var u=r.usage;h+='<div style="font-size:11px;color:var(--txt2);margin-top:8px">'+_cellText(r.model||'Claude')+' · ≈$'+_cellText(u.cost_usd)+' of $'+_cellText(u.budget_usd)+' budget · '+_cellText(u.requests)+' requests · '+_cellText(u.input_tokens)+' in / '+_cellText(u.output_tokens)+' out tokens'+(u.cache_read_tokens?' · '+_cellText(u.cache_read_tokens)+' cached':'')+'</div>';}
+  if(r.error)h+='<div style="font-size:12px;color:var(--red);margin-top:8px">'+_cellText(r.error)+'</div>';
+  tl.innerHTML=h+'</div>';
+  if(keep){var newIn=document.getElementById('rsDenyReason');
+    if(newIn){newIn.value=keep.v;if(keep.f){newIn.focus();try{newIn.setSelectionRange(keep.s,keep.e);}catch(_e){}}}}
+  var live=(r.state==='RUNNING'||r.state==='WAITING_APPROVAL');
+  document.getElementById('rsCancel').style.display=live?'':'none';
+  document.getElementById('rsStart').disabled=live;
+  var last=null;(r.steps||[]).forEach(function(s,i){if(s.type==='action'&&s.tool==='read')last=s.input;});
+  if(last&&last!==_rsLastRead){_rsLastRead=last;rsRead(last.split(/\s+/)[0]);}
+}
+var _rsLastRead=null;
+function _rsPoll(){clearTimeout(_rsTimer);if(!_rsRun)return;
+  _RAV.get(_rsBase()+'/'+_rsRun).then(function(r){if(r.error)return;_rsRenderRun(r);
+    if(r.state==='RUNNING'||r.state==='WAITING_APPROVAL')_rsTimer=setTimeout(_rsPoll,1500);else _rsLoadRuns();}).catch(function(){_rsTimer=setTimeout(_rsPoll,4000);});}
+function _rsLoadRuns(){_RAV.get(_rsBase()).then(function(d){var sel=document.getElementById('rsRuns');if(!sel)return;
+  sel.innerHTML='<option value="">Previous runs…</option>'+(d.runs||[]).map(function(x){return '<option value="'+_cellText(x.id)+'">'+_cellText(x.state+' · '+x.objective.slice(0,60))+'</option>';}).join('');}).catch(function(){});}
+function rsRead(url){var box=document.getElementById('rsPage');if(!box||!url)return;document.getElementById('rsUrl').value=url;box.innerHTML='opening…';
+  _RAV.post('/api/v7/ravensec/read',{url:url}).then(function(p){
+    if(p.error){box.innerHTML='<span style="color:var(--red)">'+_cellText(p.error)+'</span>';return;}
+    box.innerHTML='<div style="font-weight:600;color:var(--txt)">'+_cellText(p.title||p.url)+'</div><div style="font-size:11px">'+_cellText(p.url)+' · '+_cellText(p.length)+' chars</div>'+_rsPre(p.text,520)
+      +((p.links||[]).length?'<div style="font-size:11px;margin-top:6px">Trusted links:<br>'+p.links.slice(0,15).map(function(l){return '<a href="#" data-rs-read="'+_cellText(l)+'">'+_cellText(l)+'</a>';}).join('<br>')+'</div>':'');
+  }).catch(function(){box.textContent='read failed';});}
+function rsSearch(){var q=(document.getElementById('rsQuery').value||'').trim();var box=document.getElementById('rsPage');if(!q)return;box.innerHTML='searching…';
+  _RAV.post('/api/v7/ravensec/search',{query:q}).then(function(d){
+    var rs=d.results||[];box.innerHTML=(rs.length?rs.map(function(r){return '<div style="margin-bottom:10px"><a href="#" data-rs-read="'+_cellText(r.url)+'" style="font-weight:600">'+_cellText(r.title)+(r.heading?' — '+_cellText(r.heading):'')+'</a>'+_rsPre((r.text||'').slice(0,400),120)+'</div>';}).join(''):'No results.')
+      +((d.errors||[]).length?'<div style="font-size:11px;color:var(--amber)">'+_cellText(d.errors.join('; '))+'</div>':'');}).catch(function(){box.textContent='search failed';});}
+function loadRavenSec(){
+  _RAV.get('/api/v7/claude/status').then(function(c){
+    var sel=document.getElementById('rsEngine');if(!sel)return;
+    var opt=sel.querySelector('option[value="claude"]');
+    var ok=!!(c.configured&&c.enabled);
+    opt.disabled=!ok;opt.textContent='Claude Opus 5.5 (API)'+(ok?'':c.configured?' — turned off in Settings':' — add a key in Settings');
+    if(!_rsRun){var want=ok?'claude':'ravensec';if(_rsEng!==want){_rsEng=want;_rsLoadRuns();}sel.value=_rsEng;}
+  }).catch(function(){});
+  _RAV.get('/api/v7/ravensec/status').then(function(s){
+    var m=document.getElementById('rsModel'),t=document.getElementById('rsTrain');
+    var lsel=document.getElementById('rsEngine'),lopt=lsel&&lsel.querySelector('option[value="ravensec"]');
+    if(lopt){var lok=!!(s.enabled&&s.model_installed);lopt.disabled=!lok;
+      lopt.textContent='RAVEN-Sec 0.5B (local)'+(lok?'':' — off, see docs/LOCAL_AI.md');}
+    if(m&&!s.enabled){m.textContent='Local model: off (optional — docs/LOCAL_AI.md). The agent runs on Claude once a key is saved in Settings.';}
+    else if(m)m.textContent=!s.model_installed?'No model installed':(s.fine_tuned?'Model: RAVEN-Sec 0.5B (fine-tune of '+s.base_model+') · local CPU · advisory':'Model: '+s.base_model+' (base) — RAVEN-Sec fine-tune still training · local CPU');
+    var kb=s.knowledge_base||{};var kbt=kb.available?' · knowledge base: '+Object.values(kb.documents||{}).reduce(function(a,b){return a+b;},0)+' docs':'';
+    if(t)t.textContent=(s.training_log&&!s.fine_tuned?'Training: '+s.training_log:(s.manifest?'Trained on '+s.manifest.examples_trained+' examples, final loss '+s.manifest.final_loss:''))+kbt;
+  }).catch(function(){});
+  _rsLoadRuns();
+  if(_rsBound)return;_rsBound=true;
+  document.getElementById('rsRefresh').addEventListener('click',loadRavenSec);
+  document.getElementById('rsStart').addEventListener('click',function(){
+    var o=(document.getElementById('rsObjective').value||'').trim();if(!o)return;
+    _RAV.post(_rsBase(),{objective:o}).then(function(r){if(r.error){_rsSig=null;document.getElementById('rsTimeline').innerHTML='<span style="color:var(--red)">'+_cellText(r.error)+'</span>';return;}_rsRun=r.id;_rsRenderRun(r);_rsPoll();});});
+  document.getElementById('rsCancel').addEventListener('click',function(){if(_rsRun)_RAV.post(_rsBase()+'/'+_rsRun+'/cancel',{}).then(_rsPoll);});
+  document.getElementById('rsEngine').addEventListener('change',function(){
+    _rsEng=this.value;_rsRun=null;_rsSig=null;clearTimeout(_rsTimer);
+    document.getElementById('rsTimeline').innerHTML='';document.getElementById('rsStart').disabled=false;
+    document.getElementById('rsCancel').style.display='none';_rsLoadRuns();});
+  document.getElementById('rsRuns').addEventListener('change',function(){if(this.value){_rsRun=this.value;_rsSig=null;_rsPoll();}});
+  document.getElementById('rsRead').addEventListener('click',function(){rsRead((document.getElementById('rsUrl').value||'').trim());});
+  document.getElementById('rsSearch').addEventListener('click',rsSearch);
+  document.getElementById('rsQuery').addEventListener('keydown',function(e){if(e.key==='Enter')rsSearch();});
+  document.getElementById('view-ravensec').addEventListener('click',function(e){
+    var a=e.target.closest('[data-rs-read]');if(a){e.preventDefault();rsRead(a.getAttribute('data-rs-read'));return;}
+    var f=e.target.closest('[data-rs-file]');if(f&&_rsRun){e.preventDefault();_RAV.get(_rsBase()+'/'+_rsRun+'/file?name='+encodeURIComponent(f.getAttribute('data-rs-file'))).then(function(d){document.getElementById('rsPage').innerHTML='<div style="font-weight:600">'+_cellText(d.name||'')+'</div>'+_rsPre(d.content||d.error||'',600);});return;}
+    var b=e.target.closest('[data-rs-act]');if(b&&_rsRun){var act=b.getAttribute('data-rs-act');var reason=(document.getElementById('rsDenyReason')||{}).value||'';
+      // Force one fresh render afterwards: if the decision was refused (stale id,
+      // network error) the state is unchanged and the disabled button must come back.
+      var _rsAfter=function(){_rsSig=null;_rsPoll();};
+      b.disabled=true;_RAV.post(_rsBase()+'/'+_rsRun+'/'+act,{action_id:b.getAttribute('data-rs-id'),reason:reason}).then(_rsAfter,_rsAfter);}
+  });
+}
+function runLearningAssessment(){
+  var btn=document.getElementById('learn-assess-btn');
+  if(btn){btn.disabled=true;btn.textContent='Assessing…';}
+  _RAV.post('/api/v7/learning/assess',{}).then(function(d){
+    if(d&&d.error){
+      _setPage('learning-loading','learning-content','learning-body','<div class="pv-empty"><p>Assessment refused: '+_cellText(d.message||d.error)+'</p></div>');
+    }else{
+      _setPage('learning-loading','learning-content','learning-body',_renderLearning(d));
+    }
+  }).catch(function(){alert('Could not run the assessment.');})
+  .then(function(){if(btn){btn.disabled=false;btn.textContent='Run self-assessment';}});
+}
+
+/* Workspaces */
+function loadWorkspaces(){
+  _RAV.get('/api/v7/workspace').then(function(d){
+    var ws=document.getElementById('ws-cards');
+    if(!ws) return;
+    document.getElementById('ws-loading').style.display='none';
+    document.getElementById('ws-content').style.display='';
+    var cur=d.current_id||'';
+    // Names are free-form (scope.json on disk, the "+ New" form): escape them, and pass
+    // the id through a data- attribute read by one delegated listener (_wsCardsClick)
+    // instead of splicing it into JavaScript inside an inline onclick attribute.
+    ws.innerHTML=(d.workspaces||[]).map(function(w){
+      var wid=String(w.workspace_id||w.id||''),active=wid===cur;
+      return '<div class="ws-card'+(active?' ws-active':'')+'" data-ws-id="'+_cellText(wid)+'"><div class="ws-name">'+_cellText(w.name||'Workspace')+'</div><div class="ws-meta">'+(active?'<span class="pv-badge green">Active</span>':'<button type="button" class="pv-btn ghost" style="padding:2px 10px;font-size:11px">Switch</button>')+'</div></div>';
+    }).join('')||'<div class="pv-empty" style="padding:24px"><p>No workspaces.</p></div>';
+  }).catch(function(){
+    var l=document.getElementById('ws-loading'),c=document.getElementById('ws-content'),w=document.getElementById('ws-cards');
+    if(l)l.style.display='none'; if(c)c.style.display=''; if(w)w.innerHTML='<div class="pv-empty"><p>Could not load workspaces.</p></div>';
+  });
+}
+// One delegated click handler for every workspace card and its Switch button (the
+// button sits inside the card, so a click on it reaches the card exactly once).
+function _wsCardsClick(e){
+  var card=e.target&&e.target.closest?e.target.closest('[data-ws-id]'):null;
+  if(card) switchWorkspace(card.getAttribute('data-ws-id'));
+}
+(function(){var wc=document.getElementById('ws-cards');if(wc)wc.addEventListener('click',_wsCardsClick);})();
+function switchWorkspace(id){
+  // The switch now actually rebinds recon (store/scope/findings/traffic) on the server.
+  // A scopeless registry row returns 409 with guidance — surface it instead of a
+  // silent no-op, then refresh so the UI reflects the real active workspace.
+  _RAV.post('/api/v7/workspace/switch',{workspace_id:id}).then(function(d){
+    if(d&&d.error){ alert('Could not switch workspace: '+d.error); }
+    loadWorkspaces();refreshSystemStatus();
+  }).catch(function(){loadWorkspaces();});
+}
+function showCreateWorkspace(){
+  var f=document.getElementById('ws-create-form');
+  if(f){f.style.display='';var m=document.getElementById('ws-create-msg');if(m)m.style.display='none';document.getElementById('ws-new-name').focus();}
+}
+/* Mirrors raven/scope.py rule()/hostname(): with no scope given, the server uses the
+   workspace NAME as the only in-scope host, which fails for a free-form name such as
+   "Target Research". Non-ASCII (IDN) names are left for the server to decide. */
+function _wsNameIsHost(name){
+  var v=String(name||'').trim().replace(/\.+$/,'').toLowerCase(),wild=v.indexOf('*.')===0;
+  if(wild) v=v.slice(2);
+  if(!v||/[\/\\@%?#\s]/.test(v)) return false;
+  if(/[^\x00-\x7f]/.test(v)) return true;
+  if(v.indexOf(':')>=0) return !wild&&/^\[?[0-9a-f:.]+\]?$/.test(v);   // IPv6 (no IP wildcards)
+  if(wild&&/^\d{1,3}(\.\d{1,3}){3}$/.test(v)&&v.split('.').every(function(o){return +o<=255;})) return false;
+  return v.length<=253&&v.split('.').every(function(l){return /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(l);});
+}
+function createWorkspace(){
+  var n=(document.getElementById('ws-new-name')||{}).value;
+  if(!n||!n.trim()) return;
+  var raw=((document.getElementById('ws-new-scope')||{}).value||'');
+  var include=raw.split(/[,\n]/).map(function(s){return s.trim();}).filter(function(s){return s.length;});
+  var body={name:n.trim()};
+  if(include.length) body.include=include;
+  var msg=document.getElementById('ws-create-msg');
+  if(!include.length&&!_wsNameIsHost(body.name)){
+    if(msg){msg.textContent='Enter the in-scope hosts in Scope (e.g. app.example.com, *.example.com): "'+body.name+'" is not a hostname or IP, so it cannot be used as the scope.';msg.style.display='';}
+    var sc0=document.getElementById('ws-new-scope'); if(sc0) sc0.focus();
+    return;
+  }
+  _RAV.post('/api/v7/workspace/create',body).then(function(d){
+    if(d&&d.error){ if(msg){msg.textContent=d.error;msg.style.display='';} return; }
+    document.getElementById('ws-new-name').value='';
+    var sc=document.getElementById('ws-new-scope'); if(sc) sc.value='';
+    if(msg) msg.style.display='none';
+    document.getElementById('ws-create-form').style.display='none';
+    // create now materializes + activates the new workspace: refresh status too.
+    loadWorkspaces();refreshSystemStatus();
+  }).catch(function(){ if(msg){msg.textContent='Create failed.';msg.style.display='';} });
+}
+
+/* Plugins */
+function loadPlugins(){
+  _RAV.get('/api/v7/plugins').then(function(d){
+    var rows=(d.plugins||[]).map(function(p){return{id:(p.plugin_id||p.id||'').slice(0,12),name:p.name||'—',status:p.status||p.state||'—',version:p.version||'—'};});
+    _setPage('plugins-loading','plugins-content','plugins-body',_tableFrom(['id','name','status','version'],rows,'No plugins registered.'));
+  }).catch(function(){_setPage('plugins-loading','plugins-content','plugins-body','<div class="pv-empty"><p>Could not load plugins.</p></div>');});
+}
+
+/* Settings */
+/* Claude (Anthropic API) settings. The key field is write-only: it is cleared after every
+   save attempt and the server only ever returns a short hint (sk-ant-…abcd). */
+var _clBound=false;
+function _clMsg(t,c){var m=document.getElementById('claude-msg');if(m){m.textContent=t||'';m.style.color=c||'var(--txt2)';}}
+function loadClaude(){
+  _RAV.get('/api/v7/claude/status').then(function(s){
+    var st=document.getElementById('claude-status');if(!st)return;
+    st.textContent=s.configured
+      ?('✔ Key '+(s.key_hint||'from the ANTHROPIC_API_KEY environment variable')+' · model '+s.model+(s.chat_default?' · AI Chat uses Claude':'')+(s.enabled?'':' · Claude is turned off below'))
+      :'No key saved — AI Chat and the Agent page use the local RAVEN-Sec model.';
+    st.style.color=s.configured?'var(--green)':'var(--txt2)';
+    var en=document.getElementById('claude-enabled');if(en)en.checked=!!s.enabled;
+    var b=document.getElementById('claude-budget');if(b)b.value=s.budget_usd;
+    var t=document.getElementById('claude-turns');if(t)t.value=s.max_turns;
+  }).catch(function(){});
+  if(_clBound)return;_clBound=true;
+  document.getElementById('claude-save').addEventListener('click',function(){
+    var f=document.getElementById('claude-key'),k=(f.value||'').trim();f.value='';
+    if(!k){_clMsg('Paste your Anthropic API key first.','var(--amber)');return;}
+    _clMsg('Saving and testing…');
+    _RAV.post('/api/v7/claude/key',{api_key:k}).then(function(r){
+      if(r.error){_clMsg('✖ '+r.error,'var(--red)');}
+      else if(r.test&&r.test.ok){_clMsg('✔ Saved ('+r.key_hint+') and tested — '+(r.test.model||'')+' replied.','var(--green)');}
+      else{_clMsg('Saved ('+r.key_hint+'), but the test failed: '+((r.test&&r.test.error)||'unknown error'),'var(--amber)');}
+      loadClaude();loadSettings();
+    }).catch(function(){_clMsg('✖ Could not reach RAVEN.','var(--red)');});
+  });
+  document.getElementById('claude-test').addEventListener('click',function(){
+    _clMsg('Testing…');
+    _RAV.post('/api/v7/claude/test',{}).then(function(r){
+      _clMsg(r.ok?('✔ '+(r.model||'Claude')+' replied ('+(r.cost_usd!=null?'$'+r.cost_usd:'')+')'):('✖ '+(r.error||'failed')),r.ok?'var(--green)':'var(--red)');
+    }).catch(function(){_clMsg('✖ Could not reach RAVEN.','var(--red)');});
+  });
+  document.getElementById('claude-remove').addEventListener('click',function(){
+    _RAV.post('/api/v7/claude/key/delete',{}).then(function(r){_clMsg(r.removed?'Key removed.':'No saved key to remove.');loadClaude();loadSettings();});
+  });
+  document.getElementById('claude-opts').addEventListener('click',function(){
+    var body={enabled:!!document.getElementById('claude-enabled').checked,
+      budget_usd:parseFloat(document.getElementById('claude-budget').value),
+      max_turns:parseInt(document.getElementById('claude-turns').value,10)};
+    _RAV.post('/api/v7/claude/settings',body).then(function(r){
+      if(r.error)_clMsg('✖ '+r.error,'var(--red)');else{_clMsg('✔ Options saved.','var(--green)');loadClaude();loadSettings();}
+    });
+  });
+}
+function loadSettings(){
+  try{loadClaude();}catch(_e){}
+  _RAV.get('/api/v7/settings').then(function(d){
+    var cfg=d.settings||d;
+    var m=document.getElementById('set-model'); if(m)m.value=cfg.model_id||'';
+    var u=document.getElementById('set-ollama-url'); if(u)u.value=cfg.ollama_url||'http://localhost:11434';
+    var en=document.getElementById('set-enable-llm'); if(en)en.checked=!!cfg.enable_external_llm;
+    var l=document.getElementById('set-lang'); if(l)l.value=cfg.language||'';
+    var ai=d.ai_status||{};
+    var audit=document.getElementById('settings-ai-audit');
+    if(audit){
+      // Honest boundary (Wave 13): RAVEN has no native generative model; the only
+      // generative engine is an optional third-party provider, off by default.
+      var rows2=[
+        {field:'Native generative model',value:ai.native_generative_model||'none',note:'RAVEN ships no built-in generative model'},
+        {field:'External provider',value:(ai.provider||'ollama')+' (third-party)',note:'optional, not core RAVEN AI'},
+        {field:'Enabled',value:(ai.adapter_enabled?'Yes':'No — OFF by default'),note:'no connection attempted when off'},
+        {field:'Status',value:ai.status||(ai.configured?'UNKNOWN':'DISABLED'),note:'READY / DEGRADED / UNAVAILABLE / DISABLED'},
+        {field:'Active model',value:ai.model||'(none)',note:'external — not a RAVEN model'},
+        {field:'Ollama URL',value:cfg.ollama_url||'http://localhost:11434',note:'third-party endpoint'},
+        {field:'is_advisory',value:'True — immutable',note:'model output never authorizes actions'},
+      ];
+      // Escaped: ai.model / ai.status / ollama_url come from a third-party (possibly
+      // plain-http, MITM-able) Ollama endpoint, and this page holds the API token.
+      audit.innerHTML='<table class="pv-table">'+rows2.map(function(r){return'<tr><td style="width:150px;color:var(--txt2)">'+_cellText(r.field)+'</td><td>'+_cellText(r.value)+'</td><td style="font-size:11px;color:var(--txt2)">'+_cellText(r.note)+'</td></tr>';}).join('')+'</table>';
+    }
+    loadNativeModels();
+  }).catch(function(){
+    var a=document.getElementById('settings-ai-audit');
+    if(a)a.innerHTML='<div style="color:var(--red);font-size:12px">Could not load settings.</div>';
+  });
+}
+function saveSettings(){
+  var m=document.getElementById('set-model'),u=document.getElementById('set-ollama-url'),l=document.getElementById('set-lang'),en=document.getElementById('set-enable-llm');
+  var p={model_id:m?(m.value.trim()||null):null,ollama_url:u?(u.value.trim()||null):null,enable_external_llm:en?!!en.checked:false,language:l?(l.value||null):null};
+  var st=document.getElementById('settings-status');
+  if(st){st.textContent='Saving…';st.style.color='var(--txt2)';}
+  _RAV.post('/api/v7/settings',p).then(function(){
+    if(st){st.textContent='Saved. Restart AI chat for model change.';st.style.color='var(--green)';}
+  }).catch(function(){
+    if(st){st.textContent='Error saving settings.';st.style.color='var(--red)';}
+  });
+}
+
+/* RAVEN Native (first-party) model selection — honest EXPERIMENTAL_BOOTSTRAP maturity */
+function loadNativeModels(){
+  _RAV.get('/api/v7/native/models').then(function(d){
+    var sel=document.getElementById('set-native-model'); if(!sel) return;
+    var cur=d.selected||'';
+    var models=d.models||[];
+    sel.innerHTML='<option value="">(none selected — native chat unavailable)</option>'+
+      models.map(function(m){
+        var p=(m.parameter_count||0).toLocaleString();
+        var mid=(m.model_id==null?'':String(m.model_id));
+        return '<option value="'+_cellText(mid)+'"'+(m.model_id===cur?' selected':'')+'>'+
+          _cellText(mid)+' — '+_cellText(m.maturity==null?'—':m.maturity)+' ('+_cellText(p)+' params)</option>';
+      }).join('');
+    var selModel=models.filter(function(m){return m.model_id===cur;})[0];
+    renderNativeActive(cur, selModel?selModel.maturity:'EXPERIMENTAL_BOOTSTRAP');
+  }).catch(function(){});
+}
+function renderNativeActive(sel, maturity){
+  var el=document.getElementById('native-active'); if(!el) return;
+  if(!sel){
+    el.innerHTML='<span style="color:var(--txt2)">No native model active — chat honestly reports "native generative model not available".</span>';
+    return;
+  }
+  el.innerHTML='<b style="color:var(--txt)">Active model: RAVEN Native — '+_cellText(maturity==null?'—':maturity)+'</b>'+
+    '<div style="color:#d8a657;margin-top:4px">experimental bootstrap — memorizes curriculum, not a capable assistant yet</div>';
+}
+function selectNative(){
+  var sel=document.getElementById('set-native-model');
+  var st=document.getElementById('settings-status');
+  var id=sel?sel.value:'';
+  if(!id){ deselectNative(); return; }
+  if(st){st.textContent='Loading native checkpoint locally…';st.style.color='var(--txt2)';}
+  _RAV.post('/api/v7/native/select',{model_id:id}).then(function(r){
+    if(r&&r.error){ if(st){st.textContent='Native model failed to load: '+r.error;st.style.color='var(--red)';} return; }
+    var mat=(r&&r.maturity)||'EXPERIMENTAL_BOOTSTRAP';
+    if(st){st.textContent='RAVEN Native active — '+mat+' (experimental bootstrap; local, no network).';st.style.color='var(--green)';}
+    loadNativeModels(); refreshAiStatus();
+  }).catch(function(){ if(st){st.textContent='Native model failed to load.';st.style.color='var(--red)';}});
+}
+function deselectNative(){
+  var st=document.getElementById('settings-status');
+  _RAV.post('/api/v7/native/select',{model_id:null}).then(function(){
+    if(st){st.textContent='Native model deselected — chat reports native model not available.';st.style.color='var(--txt2)';}
+    loadNativeModels(); refreshAiStatus();
+  }).catch(function(){});
+}
+
+/* Recon */
+function loadRecon(){
+  // Render the REAL scheduler recon jobs (api_tasks_list attaches SCHEDULER.list() as
+  // recon_jobs). The old code filtered d.tasks for the literal "recon", which nothing
+  // ever creates, so the page was perpetually empty.
+  _RAV.get('/api/v7/tasks').then(function(d){
+    var jobs=(d.recon_jobs||[]).filter(function(j){return (j.kind||'')==='collect';});
+    var rows=jobs.map(function(j){
+      var prog=(j.progress&&j.progress.length)?j.progress[j.progress.length-1]:'';
+      return {id:String(j.id||'').slice(0,8),workspace:j.workspace||'—',state:j.state||'—',
+              requests:(j.requests!=null?j.requests:0),progress:prog||'—'};
+    });
+    _setPage('recon-loading','recon-content','recon-body',_tableFrom(['id','workspace','state','requests','progress'],rows,'No recon jobs yet. Click Start Collection.'));
+  }).catch(function(){_setPage('recon-loading','recon-content','recon-body','<div class="pv-empty"><p>Could not load recon jobs.</p></div>');});
+}
+var _reconPoll=null;
+function startRecon(){
+  // Actually START a bounded collection: POST /api/collect (passive crt.sh + active
+  // probe) hands the job to the scheduler, then poll /api/v7/tasks so the page reflects
+  // QUEUED → RUNNING → DONE. The old code only navigated and never POSTed anything.
+  navigateTo('recon');
+  _setPage('recon-loading','recon-content','recon-body','<div class="pv-empty"><p>Starting collection…</p></div>');
+  _RAV.post('/api/collect',{passive:true,probe:true,discover:true}).then(function(d){
+    if(d&&d.error){
+      _setPage('recon-loading','recon-content','recon-body','<div class="pv-empty"><p>Could not start collection: '+_esc(d.error)+'</p></div>');
+      return;
+    }
+    loadRecon();
+    if(_reconPoll) clearInterval(_reconPoll);
+    var n=0; _reconPoll=setInterval(function(){n++; loadRecon(); if(n>=12){clearInterval(_reconPoll); _reconPoll=null;}},1500);
+  }).catch(function(){loadRecon();});
+}
+
+/* Terminal */
+var _termInitDone=false;
+var _termDefaultShell=(navigator.platform||'').indexOf('Win')===0?'powershell':'bash';
+function initTerminal(){
+  if(_termInitDone) return; _termInitDone=true;
+  _RAV.get('/api/v7/terminal/status').then(function(d){
+    var el=document.getElementById('term-shell-status');
+    // D2: terminal/status returns a shells DICT {powershell,bash,cmd}; derive the
+    // available-shell list from it (there is no `available_shells` array).
+    var so=d.shells||{};var s=Object.keys(so).filter(function(k){return so[k];});
+    if(el){el.textContent=s.length?'Available: '+s.join(', '):'No shells detected';}
+    var sel=document.getElementById('termShell');
+    if(sel){
+      // Linux port: offer only shells that exist on this host (no PowerShell/CMD
+      // entries on Linux unless actually installed). Keep the full list if the
+      // server reported nothing, so the select never ends up empty.
+      if(s.length){for(var i=sel.options.length-1;i>=0;i--){if(s.indexOf(sel.options[i].value)<0)sel.remove(i);}}
+      if(d.default_shell){sel.value=d.default_shell;_termDefaultShell=d.default_shell;}
+    }
+  }).catch(function(){});
+  var ti=document.getElementById('termInput');
+  if(ti&&!ti._kb){ti._kb=true;ti.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();termRun();}});}
+}
+function termRun(){
+  var ti=document.getElementById('termInput'),out=document.getElementById('termOutput'),sel=document.getElementById('termShell');
+  if(!ti||!out) return;
+  var cmd=ti.value.trim(); if(!cmd) return;
+  ti.value='';
+  out.innerHTML+='<div style="color:var(--green)">RAVEN &gt; '+_esc(cmd)+'</div>';
+  out.scrollTop=out.scrollHeight;
+  _RAV.post('/api/v7/terminal/run',{command:cmd,shell:(sel&&sel.value)||_termDefaultShell}).then(function(d){
+    var txt=d.stdout||(d.error?'ERROR: '+d.error:'(no output)');
+    if(d.stderr&&d.stderr.trim()) txt+='\n'+d.stderr;
+    out.innerHTML+='<div class="term-result">'+_esc(txt)+'</div>';
+    out.scrollTop=out.scrollHeight;
+  }).catch(function(){out.innerHTML+='<div style="color:var(--red)">Terminal API unreachable</div>';out.scrollTop=out.scrollHeight;});
+}
+function termClear(){var o=document.getElementById('termOutput');if(o)o.innerHTML='';}
+function _esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');}
+
+/* Browser HTTP client */
+/* Browser MVP — a scope-aware HTTP research client (NOT browser automation).
+   Sends ONE request through the hardened pinned sender (/api/send -> do_send):
+   scope-pin, scheduler admission (Emergency Stop / per-host rate / per-workspace
+   budget), workspace identity + required search-header injection, no auto-redirect.
+   Each successful send is persisted server-side as a canonical Observation and
+   appears on the Traffic tab (the same one model recon probes feed). Response
+   bodies are kept only in this in-session history: the canonical store keeps a
+   body hash+length, never the body, so durable bodies intentionally do not exist.
+   A real interactive/rendering engine (playwright/CDP) is OUT OF SCOPE and not
+   installed; navigation is never faked. */
+var _brHistory=[];
+function _brRenderHistory(){
+  var el=document.getElementById('br-history'); if(!el) return;
+  if(!_brHistory.length){ el.innerHTML='<div class="pv-empty" style="padding:14px 0"><p>No requests sent this session.</p></div>'; return; }
+  el.innerHTML=_brHistory.map(function(h,i){
+    var badge=h.blocked?'amber':(h.error?'red':((typeof h.status==='number'&&h.status<400)?'green':'red'));
+    var label=h.blocked?'blocked':(h.error?'error':String(h.status)+(h.reason?' '+h.reason:''));
+    var extra=(h.elapsed_ms!=null)?(' · '+h.elapsed_ms+'ms'):'';
+    return '<div style="display:flex;gap:8px;align-items:center;padding:5px 6px;border-bottom:1px solid var(--line);cursor:pointer" title="Click to load this request into the form" onclick="_brReplay('+i+')">'
+      +'<span class="pv-badge '+badge+'" style="min-width:56px;text-align:center">'+_esc(label)+'</span>'
+      +'<span class="mono" style="font-size:11px">'+_esc(h.method)+'</span>'
+      +'<span style="font-size:11px;color:var(--txt2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">'+_esc(h.url)+'</span>'
+      +'<span style="font-size:10px;color:var(--txt2)">'+_esc(h.ts)+extra+'</span></div>';
+  }).join('');
+}
+function _brReplay(i){
+  var h=_brHistory[i]; if(!h) return;
+  var m=document.getElementById('br-method'),u=document.getElementById('br-url'),b=document.getElementById('br-body');
+  if(m) m.value=h.method; if(u) u.value=h.url; if(b) b.value=h.body||'';
+}
+function clearBrowserHistory(){ _brHistory=[]; _brRenderHistory(); }
+
+function doBrowserSend(){
+  var url=(document.getElementById('br-url')||{}).value;
+  if(!url||!url.trim()) return;
+  url=url.trim();
+  var method=(document.getElementById('br-method')||{}).value||'GET';
+  var body=(document.getElementById('br-body')||{}).value||'';
+  document.getElementById('br-result').style.display='none';
+  var errEl=document.getElementById('br-error'); errEl.style.display='none';
+  var ts=new Date().toLocaleTimeString();
+  // identity_label:'browser' tags Browser-originated observations so Traffic can
+  // tell them apart from recon "probe" and generic "manual" sends.
+  _RAV.post('/api/send',{url:url,method:method,body:body,identity_label:'browser'}).then(function(d){
+    d=d||{};
+    // (a) blocked:true -> scope/budget/Emergency-Stop/config refusal. NOT sent.
+    //     Never fabricate an HTTP status for this.
+    if(d.blocked){
+      errEl.style.display=''; errEl.style.color='var(--amber)';
+      errEl.textContent='Not sent (blocked): '+(d.error||'refused by scope / budget / emergency stop');
+      _brHistory.unshift({ts:ts,method:method,url:url,body:body,blocked:true}); _brRenderHistory();
+      return;
+    }
+    // (b) error without ok -> transport/TLS/config error.
+    if(!d.ok && d.error){
+      errEl.style.display=''; errEl.style.color='var(--red)';
+      errEl.textContent='Transport error: '+d.error;
+      _brHistory.unshift({ts:ts,method:method,url:url,body:body,error:d.error}); _brRenderHistory();
+      return;
+    }
+    // (c) ok:true -> a real HTTP response (status>=400 is a real error response, red).
+    document.getElementById('br-result').style.display='';
+    var sc=d.status;
+    document.getElementById('br-status').textContent=(sc!=null?sc:'—')+(d.reason?' '+d.reason:'');
+    document.getElementById('br-status').className='pv-badge '+((typeof sc==='number'&&sc<400)?'green':'red');
+    document.getElementById('br-url-disp').textContent=url;
+    var meta=[]; if(d.elapsed_ms!=null) meta.push(d.elapsed_ms+'ms'); if(d.bytes!=null) meta.push(d.bytes+' B');
+    if(d.truncated) meta.push('truncated'); if(d.decode_lossy) meta.push('decode-lossy');
+    document.getElementById('br-meta').textContent=meta.join(' · ');
+    var hdrs=d.headers||{}; var hk=Object.keys(hdrs);
+    // Shows the EFFECTIVE response headers. Note: the workspace identity/search
+    // headers (e.g. the engagement's required X-Request-Purpose) and User-Agent are
+    // injected server-side and WIN over caller values — they cannot be dropped here.
+    document.getElementById('br-headers').textContent=hk.length?hk.map(function(k){return k+': '+hdrs[k];}).join('\n'):'(no response headers)';
+    document.getElementById('br-response').textContent=(d.body!=null?d.body:JSON.stringify(d,null,2));
+    _brHistory.unshift({ts:ts,method:method,url:url,body:body,status:sc,reason:d.reason,elapsed_ms:d.elapsed_ms}); _brRenderHistory();
+  }).catch(function(e){
+    errEl.style.display=''; errEl.style.color='var(--red)';
+    errEl.textContent='Request failed: '+e.message;
+    _brHistory.unshift({ts:ts,method:method,url:url,body:body,error:e.message}); _brRenderHistory();
+  });
+}
+_brRenderHistory();
+
+/* Emergency stop */
+function doEmergencyStop(){
+  if(!confirm('Send emergency stop to all running jobs?')) return;
+  _RAV.post('/api/emergency-stop',{reason:'User triggered from UI'}).then(function(d){
+    // Server returns {stopped:bool} (not `message`). Report the real outcome.
+    alert('Emergency stop: '+((d&&d.stopped)?'all jobs stopped':'request sent'));
+    loadTasks();refreshStopIndicator();
+  }).catch(function(){alert('Could not reach emergency stop API.');refreshStopIndicator();});
+}
+/* Emergency Stop state + Resume. RAVEN OS could engage the stop but never clear it, so
+   Start agent / Start Collection / self-assessment stayed refused until the Workbench
+   was opened. Resume posts /api/clear-stop, which re-enables the scheduler AND the
+   process-wide PolicyGate. The indicator reads the scheduler's emergency_stopped flag;
+   Resume is enabled while the stop is engaged (or when the state cannot be read). */
+function refreshStopIndicator(){
+  function paint(on,known){
+    document.querySelectorAll('.estop-ind').forEach(function(el){el.style.display=on?'':'none';});
+    document.querySelectorAll('.estop-resume').forEach(function(b){
+      b.disabled=known&&!on;
+      b.title=on?'Emergency Stop is engaged: click to allow new requests again':(known?'Emergency Stop is not engaged':'Clear Emergency Stop and allow new requests');
+    });
+  }
+  return _RAV.get('/api/scheduler').then(function(d){
+    if(!d||typeof d.emergency_stopped!=='boolean'){paint(false,false);return;}
+    paint(d.emergency_stopped,true);
+  }).catch(function(){paint(false,false);});
+}
+function doClearStop(){
+  if(!confirm('Clear Emergency Stop? New target requests, collections and agent runs will be allowed again. Cancelled work does not restart.')) return;
+  _RAV.post('/api/clear-stop',{}).then(function(d){
+    if(d&&d.error) alert('Could not clear Emergency Stop: '+d.error);
+    loadTasks();refreshStopIndicator();
+  }).catch(function(){alert('Could not reach the clear-stop API.');refreshStopIndicator();});
+}
+setTimeout(refreshStopIndicator, 1500);
+setInterval(refreshStopIndicator, 30000);  // the Workbench can engage/clear it too
+
+/* Inline handlers (onclick="fn()") resolve their names on `window`, but every
+   function above is local to this strict-mode closure. Without this export each
+   inline button was a silent ReferenceError — Emergency Stop, every Refresh, Run
+   Agent / Program, Save Settings, Add entry, Browser Send, Start Collection, …
+   (only listener-bound controls such as the sidebar worked). Keep this list in
+   sync with the on*= attributes; tests/test_learning_live.py enforces it. */
+var _INLINE_HANDLERS={
+  navigateTo:navigateTo, doEmergencyStop:doEmergencyStop,
+  loadTasks:loadTasks, loadTraffic:loadTraffic, loadEvidence:loadEvidence,
+  loadKnowledge:loadKnowledge, loadLearning:loadLearning, loadWorkspaces:loadWorkspaces,
+  loadPlugins:loadPlugins, loadSettings:loadSettings, loadRecon:loadRecon,
+  addKnowledgeEntry:addKnowledgeEntry, addEvidenceNote:addEvidenceNote,
+  runLearningAssessment:runLearningAssessment, runAgentTask:runAgentTask,
+  runProgramTask:runProgramTask, startRecon:startRecon, termRun:termRun,
+  termClear:termClear, createWorkspace:createWorkspace, doClearStop:doClearStop,
+  showCreateWorkspace:showCreateWorkspace, saveSettings:saveSettings,
+  selectNative:selectNative, deselectNative:deselectNative,
+  doBrowserSend:doBrowserSend, clearBrowserHistory:clearBrowserHistory,
+  _brReplay:_brReplay
+};
+Object.keys(_INLINE_HANDLERS).forEach(function(k){window[k]=_INLINE_HANDLERS[k];});
+
+})();
+</script>
+</body>
+</html>

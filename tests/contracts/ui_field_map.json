@@ -1,0 +1,124 @@
+{
+  "_doc": "Machine-readable map of what web/index.html READS from each endpoint, keyed by the contract id in raven/api/contracts.py. tests/test_api_contracts.py asserts every `read` path resolves to a declared field, so a future UI<->server field drift (e.g. a reintroduced d.entries/available_shells/proxy_active) fails a test. `[]` steps into a list item's declared row shape (ITEM_CONTRACTS). Captured Wave 14 (A14-FRONTEND) from web/index.html.",
+  "readers": [
+    {
+      "ui": "refreshAiStatus() — right-panel AI Model row",
+      "endpoint": "GET /api/ai/status",
+      "reads": ["configured", "display", "model", "status", "available"]
+    },
+    {
+      "ui": "refreshSystemStatus() — right-panel Proxy/Terminal/Workspace rows + chrome",
+      "endpoint": "GET /api/v7/status",
+      "reads": ["workspace.name", "workspace.active", "proxy.active", "proxy.port", "terminal.shells"]
+    },
+    {
+      "ui": "refreshResources() — right-panel Resource Usage",
+      "endpoint": "GET /api/v7/system/resources",
+      "reads": ["available", "cpu_percent", "memory_percent", "disk_percent", "net_bytes_sent_ps"]
+    },
+    {
+      "ui": "initTerminal() — terminal shell-status subtitle",
+      "endpoint": "GET /api/v7/terminal/status",
+      "reads": ["shells", "default_shell"]
+    },
+    {
+      "ui": "loadTasks() + loadRecon()",
+      "endpoint": "GET /api/v7/tasks",
+      "reads": ["tasks", "tasks[].task_id", "tasks[].id", "tasks[].name", "tasks[].type", "tasks[].status", "tasks[].created_at", "recon_jobs"]
+    },
+    {
+      "ui": "loadTraffic()",
+      "endpoint": "GET /api/v7/traffic",
+      "reads": ["entries", "entries[].method", "entries[].url", "entries[].status", "entries[].identity_label", "entries[].timestamp"]
+    },
+    {
+      "ui": "loadEvidence()",
+      "endpoint": "GET /api/v7/evidence",
+      "reads": ["nodes", "nodes[].node_id", "nodes[].kind", "nodes[].type", "nodes[].label", "nodes[].title", "nodes[].data"]
+    },
+    {
+      "ui": "loadKnowledge()",
+      "endpoint": "GET /api/v7/knowledge",
+      "reads": ["entries", "total", "entries[].entry_id", "entries[].title", "entries[].kind", "entries[].content_type", "entries[].source", "entries[].confidence"]
+    },
+    {
+      "ui": "loadPlugins()",
+      "endpoint": "GET /api/v7/plugins",
+      "reads": ["plugins", "plugins[].plugin_id", "plugins[].id", "plugins[].name", "plugins[].status", "plugins[].state", "plugins[].version"]
+    },
+    {
+      "ui": "loadWorkspaces()",
+      "endpoint": "GET /api/v7/workspace",
+      "reads": ["workspaces", "current_id", "workspaces[].workspace_id", "workspaces[].id", "workspaces[].name"]
+    },
+    {
+      "ui": "loadSettings()",
+      "endpoint": "GET /api/v7/settings",
+      "reads": ["model_id", "ollama_url", "enable_external_llm", "language", "ai_status", "ai_status.native_generative_model", "ai_status.provider", "ai_status.adapter_enabled", "ai_status.status", "ai_status.model"]
+    },
+    {
+      "ui": "sendMsg() — chat",
+      "endpoint": "POST /api/chat",
+      "reads": ["response", "error"]
+    },
+    {
+      "ui": "doBrowserSend() — Browser HTTP client",
+      "endpoint": "POST /api/send",
+      "reads": ["ok", "blocked", "error", "status", "reason", "headers", "body", "elapsed_ms", "bytes", "truncated", "decode_lossy"]
+    },
+    {
+      "ui": "startRecon() — Recon Start Collection",
+      "endpoint": "POST /api/collect",
+      "reads": ["error"]
+    },
+    {
+      "ui": "doEmergencyStop()",
+      "endpoint": "POST /api/emergency-stop",
+      "reads": ["stopped"]
+    },
+    {
+      "ui": "termRun() — terminal run",
+      "endpoint": "POST /api/v7/terminal/run",
+      "reads": ["stdout", "stderr", "error"]
+    },
+    {
+      "ui": "switchWorkspace()",
+      "endpoint": "POST /api/v7/workspace/switch",
+      "reads": ["error"]
+    },
+    {
+      "ui": "createWorkspace()",
+      "endpoint": "POST /api/v7/workspace/create",
+      "reads": ["error"]
+    },
+    {
+      "ui": "addKnowledgeEntry()",
+      "endpoint": "POST /api/v7/knowledge",
+      "reads": ["error"]
+    },
+    {
+      "ui": "addEvidenceNote()",
+      "endpoint": "POST /api/v7/evidence/note",
+      "reads": ["error"]
+    },
+    {
+      "ui": "loadLearning() / _renderLearning() — Learning page",
+      "endpoint": "GET /api/v7/learning",
+      "reads": ["status", "assessed_at", "domains", "no_exam_domains", "exams",
+                "graduation_ready", "authority", "note", "error", "gaps", "lessons",
+                "resources", "threshold",
+                "domains[].domain", "domains[].status", "domains[].mastery_level",
+                "domains[].accuracy", "domains[].exam_id",
+                "exams[].n_pass", "exams[].n_total",
+                "gaps[].domain", "gaps[].accuracy", "gaps[].priority", "gaps[].description",
+                "lessons[].title", "lessons[].summary", "lessons[].confidence",
+                "lessons[].source",
+                "resources[].domain", "resources[].title", "resources[].study_approach"]
+    },
+    {
+      "ui": "runLearningAssessment()",
+      "endpoint": "POST /api/v7/learning/assess",
+      "reads": ["error", "message"]
+    }
+  ]
+}

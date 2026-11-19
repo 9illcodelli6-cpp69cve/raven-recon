@@ -1,0 +1,57 @@
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+build/
+dist/
+workspaces/
+active-workspace.json
+*.db
+*.db-shm
+*.db-wal
+
+scratch_*
+# RAVEN.spec and raven.ico ARE tracked (needed to reproduce dist/RAVEN.exe from a
+# fresh clone) — do not re-ignore them. A stray *.spec from an ad-hoc PyInstaller
+# run elsewhere would need its own explicit ignore, not a blanket *.spec rule.
+
+# Linux port build outputs
+native/build-linux/
+rust/target/
+raven/native/_raven_native*.so
+
+# ── Never commit engagement data or secrets ─────────────────────────────────
+# (RAVEN keeps its data in ~/.local/share/raven-recon or %LOCALAPPDATA%\RAVEN-Recon;
+#  these patterns catch data written next to the code by a source run.)
+claude/
+claude-agent/
+*.enc
+secret.key
+*.key
+*.pem
+.env
+*.pre_*
+*.sqlite
+*.har
+*.log
+scratchpad*
+learning_mastery.json
+active-settings.json
+identity.json
+findings.jsonl
+
+# ── Models and AI data: download or train locally (docs/LOCAL_AI.md) ────────
+models/*
+!models/README.md
+*.pt
+*.pth
+*.pkl
+*.safetensors
+*.gguf
+*.pyd
+
+# local editor / AI-assistant settings
+.claude/
+.vscode/
+.idea/
