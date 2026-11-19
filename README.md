@@ -12,7 +12,11 @@ a local web UI, or in the terminal.
 > permission to test. Read [`RESPONSIBLE_USE.md`](RESPONSIBLE_USE.md) first.
 > **العربية:** [README.ar.md](README.ar.md)
 
-![RAVEN Recon](docs/screenshots/01-surface.png)
+![RAVEN Recon](docs/screenshots/raven-os.jpg)
+
+| AI Agent — every request and command waits for your approval | Recon Workbench — attack surface, request lab, findings |
+|---|---|
+| ![AI Agent](docs/screenshots/ai-agent.jpg) | ![Recon Workbench](docs/screenshots/workbench.jpg) |
 
 ---
 
@@ -148,6 +152,9 @@ token, so other machines on your network cannot reach it.
    in **Findings**, then **Export workspace report** (Markdown) and write your own report.
 8. **Stop button** — **Emergency Stop** halts every job, request, agent run and command at
    once; **Resume** re-enables them.
+9. **Appearance** — **Settings → Appearance**: **Full** (animated artwork background),
+   **Static** (same artwork, no animation — lighter on older machines) or **Off** (plain dark).
+   Systems set to *reduce motion* get Static automatically.
 
 ---
 
@@ -238,6 +245,7 @@ Release builds are produced by GitHub Actions on every `v*` tag (`.github/workfl
 | Claude: key rejected / test failed | Create a new key in the Anthropic console, check billing/spend limit, paste it again |
 | Agent run ends with `REFUSED` | Anthropic's safety system declined a step — state the authorised context (program, scope) more clearly, or do that step by hand |
 | Everything is blocked | Check the workspace scope and ports, and whether Emergency Stop is engaged |
+| The UI feels slow on an old PC or VM | **Settings → Appearance → Static** (or **Off**) |
 | `raven-recon` / `raven-sec` not found | Add `~/.local/bin` (Linux) or `%LOCALAPPDATA%\RAVEN-Recon\bin` (Windows) to `PATH`, open a new terminal |
 
 ---

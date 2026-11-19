@@ -237,16 +237,32 @@ class UiSemanticTests(unittest.TestCase):
     def test_emergency_stop_reads_stopped(self):
         self.assertIn("d.stopped", self.html)
 
-    def test_research_and_tools_tabs_are_disabled(self):
-        self.assertIn('data-tab="research" disabled', self.html)
-        self.assertIn('data-tab="tools" disabled', self.html)
+    def test_research_and_tools_tabs_open_real_pages(self):
+        # v7.1: no dead tabs — Research opens the AI Agent (trusted-source research),
+        # Tools opens the Terminal.
+        self.assertNotIn('data-tab="research" disabled', self.html)
+        self.assertNotIn('data-tab="tools" disabled', self.html)
+        self.assertIn("research:'ravensec'", self.html)
+        self.assertIn("tools:'terminal'", self.html)
 
-    def test_dead_chrome_is_honestly_disabled(self):
+    def test_no_dead_chrome(self):
+        # Controls without a backend were removed instead of shipped as inert buttons;
+        # "New Task" now starts an AI Agent task.
         for marker in ("Voice input — not implemented",
                        "Task creation is not implemented",
                        "Add attachment — not implemented",
-                       "Attach file — not implemented"):
-            self.assertIn(marker, self.html)
+                       "Attach file — not implemented",
+                       'class="chat-mic"'):
+            self.assertNotIn(marker, self.html)
+        self.assertIn('class="btn-new-task" onclick="newAgentTask()"', self.html)
+        self.assertIn("newAgentTask:newAgentTask", self.html)
+
+    def test_window_buttons_are_wired(self):
+        # Title-bar buttons call the pywebview js_api (launch._WindowApi) and are
+        # hidden in a plain browser, where they could not work.
+        for name in ("'minimize'", "'toggle_maximize'", "'close_window'"):
+            self.assertIn(name, self.html)
+        self.assertIn(".has-native-window .wbtns", self.html)
 
     def test_gear_is_wired_to_settings(self):
         self.assertIn("class=\"btn-gear\" onclick=\"navigateTo('settings')\"", self.html)

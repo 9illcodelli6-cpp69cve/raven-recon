@@ -8,6 +8,12 @@
 > ⚠️ **للفحص المصرّح فيه فقط.** استعمل الأداة بس على أنظمة بتملكها أو معك إذن مكتوب بفحصها.
 > اقرأ [`RESPONSIBLE_USE.md`](RESPONSIBLE_USE.md) أول. — English: [README.md](README.md)
 
+</div>
+
+![RAVEN Recon](docs/screenshots/raven-os.jpg)
+
+<div dir="rtl">
+
 ---
 
 ## الفهرس
@@ -135,6 +141,7 @@ gh attestation verify RAVEN-Recon-linux-x64.tar.gz --repo mahmodaltory12-beep/ra
    (مثلاً: *"افحص /api/orders/{id} لثغرة IDOR بحسابيّ التجريبيين"*). اقرأ كل طلب أو أمر بيقترحه واضغط **Approve** أو **Deny**.
 7. **سجّل وبلّغ:** الوكيل والمختبرات بيسجّلوا نتائج **مرشّحة**؛ راجعها بـ **Findings**، بعدين **Export workspace report**، واكتب تقريرك بإيدك.
 8. **زر الطوارئ:** **Emergency Stop** بيوقف كل شي بلحظة؛ **Resume** بيرجّعه.
+9. **الشكل:** **Settings ← Appearance**: **Full** (الخلفية متحركة)، **Static** (نفس الصورة بدون حركة — أخف على الأجهزة القديمة)، أو **Off** (خلفية سودا عادية).
 
 ---
 
@@ -181,6 +188,7 @@ gh attestation verify RAVEN-Recon-linux-x64.tar.gz --repo mahmodaltory12-beep/ra
 | مفتاح Claude مرفوض | اعمل مفتاح جديد، تأكد من الرصيد/حد الصرف، والصقه من جديد |
 | مهمة الوكيل انتهت بـ `REFUSED` | نظام الأمان عند Anthropic رفض خطوة — وضّح سياق التفويض (البرنامج، النطاق) أو اعمل الخطوة بإيدك |
 | كل شي محجوب | راجع نطاق مساحة العمل والمنافذ، وتأكد إن Emergency Stop مش شغّال |
+| الواجهة بطيئة على جهاز قديم أو VM | **Settings ← Appearance ← Static** (أو **Off**) |
 | الأوامر مش موجودة | ضيف `~/.local/bin` (لينكس) أو `%LOCALAPPDATA%\RAVEN-Recon\bin` (ويندوز) للـ PATH وافتح ترمنال جديد |
 
 ---

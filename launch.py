@@ -63,6 +63,36 @@ def _prepare_linux_webview_env():
             pass
 
 
+class _WindowApi:
+    """Window controls exposed to the page (pywebview js_api): the title-bar buttons in
+    RAVEN OS and the Workbench call these. Only these three methods are reachable; the
+    window handle is a private attribute, which pywebview does not expose to JS."""
+
+    def __init__(self):
+        self._window = None
+        self._maximized = False
+
+    def _bind(self, window):
+        self._window = window
+
+    def minimize(self):
+        if self._window is not None:
+            self._window.minimize()
+
+    def toggle_maximize(self):
+        if self._window is None:
+            return
+        if self._maximized:
+            self._window.restore()
+        else:
+            self._window.maximize()
+        self._maximized = not self._maximized
+
+    def close_window(self):
+        if self._window is not None:
+            self._window.destroy()
+
+
 def _open_native_window(url: str, args) -> None:
     """Open the pywebview window; raises if no native backend is usable."""
     _prepare_linux_webview_env()
@@ -75,8 +105,11 @@ def _open_native_window(url: str, args) -> None:
         webview.settings["ALLOW_DOWNLOADS"] = True
     except Exception:
         pass
-    webview.create_window("RAVEN Recon", url, width=1440, height=900,
-                          min_size=(1024, 640), background_color="#04050c")
+    api = _WindowApi()
+    window = webview.create_window("RAVEN Recon", url, width=1440, height=900,
+                                   min_size=(1024, 640), background_color="#030206",
+                                   js_api=api)
+    api._bind(window)
     start_kwargs = {"debug": bool(args.debug)}
     if args.gui:
         start_kwargs["gui"] = args.gui

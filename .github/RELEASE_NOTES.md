@@ -1,5 +1,7 @@
 ## RAVEN Recon 7.0.0 — first public release
 
+![RAVEN Recon](https://raw.githubusercontent.com/mahmodaltory12-beep/raven-recon/main/docs/screenshots/raven-os.jpg)
+
 **Scope-aware reconnaissance and AI-assisted security-testing workbench for bug-bounty hunters and penetration testers.**
 Runs on **Windows 10/11** and **Kali Linux / Debian / Ubuntu** — as a desktop app, a local web UI, or from the terminal.
 
@@ -17,6 +19,7 @@ Runs on **Windows 10/11** and **Kali Linux / Debian / Ubuntu** — as a desktop 
 | **AI Agent** | Claude Opus 5.5 plans and works with RAVEN's tools — **every target request and every command waits for your approval**. Seven built-in testing playbooks (API recon, API security, recon breadth, code audit, patch diff, PHP LFI→RCE, browser testing). |
 | **AI Chat & terminal** | Ask questions, get payloads and code — in the app or with `raven-sec` in the terminal. Use Claude, or your own local model through Ollama. |
 | **Safety** | Emergency Stop, per-workspace request/rate limits, per-task AI budget, offline command sandbox (Linux), encrypted API key, all data stays on your machine, no telemetry. |
+| **Look** | Dark horror theme: full-window artwork background with scanlines and glitch effects across RAVEN OS and the Workbench. **Settings → Appearance:** Full / Static / Off. |
 
 ### Downloads
 | File | For |
@@ -61,7 +64,7 @@ Copies from anywhere else ("PRO", "cracked", re-uploads) are not official and ma
 
 > ⚠️ **للفحص المصرّح فيه فقط** — على أنظمة بتملكها أو معك إذن مكتوب بفحصها. اقرأ RESPONSIBLE_USE.md أول.
 
-**شو فيها:** مساحات عمل بنطاق محدد وكل طلب بينفحص عليه · استطلاع (دومينات فرعية، فحص منافذ، اكتشاف مسارات، تتبّع التغييرات) · Repeater وIntruder وDecoder وسجل HTTP · مختبر صلاحيات ومختبر XSS · نتائج مع أدلة وتقرير · **وكيل ذكي (Claude Opus 5.5) ما بينفّذ ولا طلب ولا أمر بدون موافقتك** · محادثة وترمنال `raven-sec` · زر طوارئ، حدود صرف وسرعة، sandbox بدون إنترنت، وكل بياناتك عندك.
+**شو فيها:** مساحات عمل بنطاق محدد وكل طلب بينفحص عليه · استطلاع (دومينات فرعية، فحص منافذ، اكتشاف مسارات، تتبّع التغييرات) · Repeater وIntruder وDecoder وسجل HTTP · مختبر صلاحيات ومختبر XSS · نتائج مع أدلة وتقرير · **وكيل ذكي (Claude Opus 5.5) ما بينفّذ ولا طلب ولا أمر بدون موافقتك** · محادثة وترمنال `raven-sec` · زر طوارئ، حدود صرف وسرعة، sandbox بدون إنترنت، وكل بياناتك عندك · **شكل مرعب جديد**: الصورة خلفية لكل الأداة مع تأثيرات glitch، وبتقدر تخليها ثابتة أو تطفيها من Settings ← Appearance.
 
 **التنزيل:** ويندوز ← `RAVEN-Recon-windows-x64.zip` وشغّل `RAVEN.exe` · كالي ← `RAVEN-Recon-linux-x64.tar.gz`، أو من المصدر: `git clone … && ./install.sh`.
 

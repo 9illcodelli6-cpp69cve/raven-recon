@@ -53,6 +53,7 @@ following third-party works, which keep their own licences:
 | OWASP Web Security Testing Guide & Cheat Sheets (downloaded on demand) | local knowledge base | CC BY-SA 4.0 |
 | PayloadsAllTheThings (downloaded on demand) | local knowledge base | MIT |
 | Claude (Anthropic API, optional, your own key) | AI chat and agent | Anthropic's terms; you pay for your own usage |
+| Background artwork `web/assets/raven-mask.jpg` (and screenshots that show it) | UI background | **not** covered by the AGPL — rights remain with their owners; replace it if you redistribute and do not hold those rights |
 
 The testing playbooks in `raven/skills/` were written from scratch for RAVEN Recon from public
 methodology (OWASP, PortSwigger, MITRE) and are covered by this project's licence.
