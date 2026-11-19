@@ -31,7 +31,7 @@ modified version:
 3. **Name and logo (§7e).** This licence grants no rights to use the names "RAVEN Recon",
    "RAVEN-Sec" or the RAVEN logo, except to truthfully describe the origin of the work.
 
-Official releases are published only at `https://github.com/mahmodaltory12-beep/raven-recon/releases`
+Official releases are published only at `https://github.com/9illcodelli6-cpp69cve/raven-recon/releases`
 and carry SHA-256 checksums and GitHub build-provenance attestations
 (see [Verify your download](README.md#verify-your-download)).
 

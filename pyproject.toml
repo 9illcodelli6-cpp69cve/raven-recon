@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "raven-recon"
-version = "7.0.0"
+version = "7.0.1"
 description = "RAVEN Recon — scope-aware reconnaissance and AI-assisted security-testing workbench"
 requires-python = ">=3.11"
 license = "AGPL-3.0-or-later"

