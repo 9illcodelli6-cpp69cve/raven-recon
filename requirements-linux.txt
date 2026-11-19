@@ -5,7 +5,7 @@
 
 pywebview>=5.0            # native desktop window (GTK/WebKit backend)
 textual==8.2.8            # terminal UI (`raven` command)
-aiohttp==3.14.3
+aiohttp==3.14.5
 numpy                     # ML triage features
 scikit-learn
 joblib

@@ -2,7 +2,7 @@
 pywebview>=5.0            # native desktop window (Edge WebView2)
 pythonnet>=3.0            # WebView2 bridge for pywebview
 textual==8.2.8
-aiohttp==3.14.3
+aiohttp==3.14.5
 numpy
 scikit-learn
 joblib
